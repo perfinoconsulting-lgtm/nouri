@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: 26 58 92; /* #1A3A5C */
+    --color-accent: 245 166 35; /* #F5A623 */
+    --color-success: 0 201 177; /* #00C9B1 */
+    --color-kids: 255 107 157; /* #FF6B9D */
+    --color-validation: 39 174 96; /* #27AE60 */
+    
+    --background: 255 255 255;
+    --foreground: 26 58 92;
+  }
+}
+
+body {
+  background-color: rgb(var(--background));
+  color: rgb(var(--foreground));
+  font-family: var(--font-inter), sans-serif;
+}
