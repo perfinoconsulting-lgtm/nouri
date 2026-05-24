@@ -86,6 +86,12 @@ export async function POST(req: Request) {
         }
 
         // Insérer ou mettre à jour dans la table subscriptions
+        // current_period_start : champ renommé dans les API Stripe récentes
+        const sub = subscription as unknown as Record<string, unknown>
+        const periodStart = typeof sub.current_period_start === 'number'
+          ? new Date(sub.current_period_start * 1000).toISOString()
+          : new Date().toISOString()
+
         const { error } = await supabase.from('subscriptions').upsert(
           {
             parent_id: parentId,
@@ -93,9 +99,7 @@ export async function POST(req: Request) {
             stripe_subscription_id: subscription.id,
             stripe_price_id: subscription.items.data[0].price.id,
             status: subscription.status,
-            current_period_start: new Date(
-              subscription.current_period_start * 1000
-            ).toISOString(),
+            current_period_start: periodStart,
           },
           { onConflict: 'stripe_subscription_id' }
         )
@@ -115,15 +119,17 @@ export async function POST(req: Request) {
       // ── Abonnement modifié ────────────────────────────────────────────────
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription
+        const subRaw = subscription as unknown as Record<string, unknown>
+        const updatedPeriodStart = typeof subRaw.current_period_start === 'number'
+          ? new Date(subRaw.current_period_start * 1000).toISOString()
+          : new Date().toISOString()
 
         const { error } = await supabase
           .from('subscriptions')
           .update({
             status: subscription.status,
             stripe_price_id: subscription.items.data[0].price.id,
-            current_period_start: new Date(
-              subscription.current_period_start * 1000
-            ).toISOString(),
+            current_period_start: updatedPeriodStart,
           })
           .eq('stripe_subscription_id', subscription.id)
 
@@ -157,20 +163,21 @@ export async function POST(req: Request) {
       // ── Paiement échoué ───────────────────────────────────────────────────
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice
+        // invoice.subscription renommé dans les API Stripe récentes
+        const invRaw = invoice as unknown as Record<string, unknown>
+        const failedSubId = invRaw.subscription as string | null
 
-        if (!invoice.subscription) break
+        if (!failedSubId) break
 
         const { error } = await supabase
           .from('subscriptions')
           .update({ status: 'past_due' })
-          .eq('stripe_subscription_id', invoice.subscription as string)
+          .eq('stripe_subscription_id', failedSubId)
 
         if (error) {
           console.error('❌ Erreur Supabase paiement échoué :', error)
         } else {
-          console.error(
-            `⚠️  Paiement échoué pour l'abonnement ${invoice.subscription} — statut : past_due`
-          )
+          console.error(`⚠️  Paiement échoué pour l'abonnement ${failedSubId} — statut : past_due`)
           // TODO : Envoyer un email d'alerte au parent via Resend
         }
         break
@@ -179,18 +186,21 @@ export async function POST(req: Request) {
       // ── Paiement réussi (renouvellement mensuel) ──────────────────────────
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object as Stripe.Invoice
+        const invSuccessRaw = invoice as unknown as Record<string, unknown>
+        const successSubId = invSuccessRaw.subscription as string | null
+        const billingReason = invSuccessRaw.billing_reason as string | null
 
-        if (!invoice.subscription || invoice.billing_reason === 'subscription_create') break
+        if (!successSubId || billingReason === 'subscription_create') break
 
         const { error } = await supabase
           .from('subscriptions')
           .update({ status: 'active' })
-          .eq('stripe_subscription_id', invoice.subscription as string)
+          .eq('stripe_subscription_id', successSubId)
 
         if (error) {
           console.error('❌ Erreur Supabase paiement réussi :', error)
         } else {
-          console.log(`💰 Paiement renouvellement réussi : ${invoice.subscription}`)
+          console.log(`💰 Paiement renouvellement réussi : ${successSubId}`)
         }
         break
       }

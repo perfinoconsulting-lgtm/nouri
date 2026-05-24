@@ -19,7 +19,9 @@ if (!stripeSecretKey) {
 }
 
 export const stripe = new Stripe(stripeSecretKey ?? 'sk_test_placeholder', {
-  apiVersion: '2026-04-22.dahlia' as Stripe.LatestApiVersion,
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore — version dahlia spécifique, non encore dans les types SDK
+  apiVersion: '2026-04-22.dahlia',
   appInfo: {
     name: 'NourAl App',
     version: '0.1.0',
