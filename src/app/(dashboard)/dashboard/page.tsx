@@ -7,7 +7,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import ChildCard from '@/components/dashboard/ChildCard'
 import Link from 'next/link'
-import { BookOpen, Users, Zap, TrendingUp } from 'lucide-react'
+import { BookOpen, Users, Clock, Calendar } from 'lucide-react'
 
 // Calcule une date en francais : "Lundi 25 mai 2025"
 function formatDateFr(): string {
@@ -53,14 +53,30 @@ export default async function DashboardPage() {
     ? await supabase.from('progress').select('child_id, score').in('child_id', childIds)
     : { data: [] }
 
-  // Abonnements
+  // Abonnements de tous les enfants
   const { data: allSubs } = childIds.length > 0
-    ? await supabase.from('subscriptions').select('child_id, status, current_period_start').in('child_id', childIds)
+    ? await supabase.from('subscriptions').select('child_id, status').in('child_id', childIds)
+    : { data: [] }
+
+  // Sessions de la semaine
+  const oneWeekAgo = new Date()
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+  const { data: weeklySessions } = childIds.length > 0
+    ? await supabase
+        .from('sessions')
+        .select('child_id, duration_seconds')
+        .in('child_id', childIds)
+        .gte('started_at', oneWeekAgo.toISOString())
     : { data: [] }
 
   // Stats globales
   const totalLettersMastered = (allProgress ?? []).filter((p) => p.score >= 80).length
   const activeChildrenCount = childrenList.filter((c) => isActiveRecently(c.last_active)).length
+  const sessionsThisWeek = (weeklySessions ?? []).length
+  const totalSeconds = (weeklySessions ?? []).reduce((sum, s) => sum + (s.duration_seconds ?? 0), 0)
+  const totalHours = Math.floor(totalSeconds / 3600)
+  const totalMinutes = Math.floor((totalSeconds % 3600) / 60)
+  const tempsLabel = totalHours > 0 ? `${totalHours}h ${totalMinutes}min` : `${totalMinutes}min`
   const dateStr = formatDateFr()
 
   return (
@@ -123,18 +139,15 @@ export default async function DashboardPage() {
               bg: 'bg-blue-50',
             },
             {
-              icon: <Zap size={22} className="text-[#F5A623]" />,
-              label: 'Enfants Premium',
-              value: (allSubs ?? []).filter((s) => s.status === 'active' || s.status === 'trialing').length,
+              icon: <Calendar size={22} className="text-[#F5A623]" />,
+              label: 'Sessions cette semaine',
+              value: sessionsThisWeek,
               bg: 'bg-yellow-50',
             },
             {
-              icon: <TrendingUp size={22} className="text-purple-600" />,
-              label: 'Score moyen',
-              value: (() => {
-                const scores = (allProgress ?? []).map((p) => p.score)
-                return scores.length ? `${Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)}%` : '-'
-              })(),
+              icon: <Clock size={22} className="text-purple-600" />,
+              label: 'Temps total (7j)',
+              value: tempsLabel,
               bg: 'bg-purple-50',
             },
           ].map((stat) => (

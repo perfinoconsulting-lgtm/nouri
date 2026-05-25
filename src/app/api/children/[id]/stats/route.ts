@@ -32,28 +32,28 @@ export async function GET(
     const since = new Date()
     since.setDate(since.getDate() - 84)
 
-    const { data: progress, error } = await supabase
-      .from('progress')
-      .select('updated_at, score')
+    const { data: sessionsData, error } = await supabase
+      .from('sessions')
+      .select('started_at, duration_seconds, correct_answers, items_reviewed')
       .eq('child_id', params.id)
-      .gte('updated_at', since.toISOString())
-      .order('updated_at', { ascending: true })
+      .gte('started_at', since.toISOString())
+      .order('started_at', { ascending: true })
 
     if (error) {
       return NextResponse.json({ error: 'Erreur lors de la recuperation des stats.' }, { status: 500 })
     }
 
-    // Agreger par jour (approximation : chaque entree de progres = ~2 min de travail)
+    // Agreger par jour
     const dayMap: Record<string, { duration_seconds: number; correct_answers: number; items_reviewed: number }> = {}
 
-    ;(progress ?? []).forEach((p) => {
-      const day = new Date(p.updated_at).toISOString().split('T')[0]
+    ;(sessionsData ?? []).forEach((s) => {
+      const day = new Date(s.started_at).toISOString().split('T')[0]
       if (!dayMap[day]) {
         dayMap[day] = { duration_seconds: 0, correct_answers: 0, items_reviewed: 0 }
       }
-      dayMap[day].duration_seconds += 120 // 2 min par entree de progres (estimation)
-      dayMap[day].items_reviewed += 1
-      if (p.score >= 80) dayMap[day].correct_answers += 1
+      dayMap[day].duration_seconds += s.duration_seconds ?? 0
+      dayMap[day].items_reviewed += s.items_reviewed ?? 0
+      dayMap[day].correct_answers += s.correct_answers ?? 0
     })
 
     const sessions = Object.entries(dayMap).map(([date, stats]) => ({

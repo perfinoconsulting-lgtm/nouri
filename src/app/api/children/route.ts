@@ -84,10 +84,18 @@ export async function GET() {
       .select('child_id, status, current_period_start')
       .in('child_id', childIds)
 
+    // Recuperer toutes les sessions (pour streak + temps total)
+    const { data: sessionsData } = await supabase
+      .from('sessions')
+      .select('child_id, started_at, duration_seconds')
+      .in('child_id', childIds)
+      .order('started_at', { ascending: false })
+
     // Assembler les stats pour chaque enfant
     const enrichedChildren = children.map((child) => {
       const childProgress = progressData?.filter((p) => p.child_id === child.id) ?? []
       const childSub = subscriptions?.find((s) => s.child_id === child.id)
+      const childSessions = sessionsData?.filter((s) => s.child_id === child.id) ?? []
 
       const lettersLearned = childProgress.filter((p) => p.score >= 80).length
       const lettersInProgress = childProgress.filter((p) => p.score > 0 && p.score < 80).length
@@ -95,6 +103,10 @@ export async function GET() {
         childProgress.length > 0
           ? Math.round(childProgress.reduce((sum, p) => sum + p.score, 0) / childProgress.length)
           : 0
+
+      const totalMinutes = Math.floor(
+        childSessions.reduce((sum, s) => sum + (s.duration_seconds ?? 0), 0) / 60
+      )
 
       return {
         id: child.id,
@@ -108,10 +120,10 @@ export async function GET() {
           lettersLearned,
           lettersInProgress,
           avgScore,
-          totalSessions: 0,
-          totalMinutes: 0,
-          currentStreak: 0,
-          lastSessionDate: child.last_active,
+          totalSessions: childSessions.length,
+          totalMinutes,
+          currentStreak: calculateStreak(childSessions.map((s) => ({ created_at: s.started_at }))),
+          lastSessionDate: childSessions[0]?.started_at ?? child.last_active,
         },
         subscription: {
           status: childSub?.status ?? 'inactive',
