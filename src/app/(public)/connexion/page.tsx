@@ -71,7 +71,7 @@ export default function LoginPage() {
           <div>
             <div className="flex justify-between items-center mb-2">
               <label className="block text-sm font-semibold text-[#1A3A5C]">Mot de passe</label>
-              <Link href="/reset-password" name="reset-password-link" className="text-sm text-[#F5A623] hover:underline font-medium">Oublié ?</Link>
+              <Link href="/reset-password" className="text-sm text-[#F5A623] hover:underline font-medium">Mot de passe oublié ?</Link>
             </div>
             <input type="password" {...register('password')} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#F5A623] outline-none transition" placeholder="••••••••" />
             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}

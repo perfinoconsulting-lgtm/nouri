@@ -14,7 +14,7 @@ export default function Navbar() {
   ]
 
   return (
-    <header className="absolute top-0 w-full z-50 p-6">
+    <header className="sticky top-0 w-full z-50 bg-[#1A3A5C] p-6">
       <div className="max-w-6xl mx-auto flex justify-between items-center">
         <Link href="/" className="text-2xl font-bold text-white flex items-center gap-2">
           NourAl 🌙
