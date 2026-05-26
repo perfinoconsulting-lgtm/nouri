@@ -71,8 +71,8 @@ export async function createCheckoutSession(
     },
     allow_promotion_codes: true,
     metadata: { parentId, childId },
-    success_url: `${appUrl}/dashboard/abonnement?success=true`,
-    cancel_url: `${appUrl}/tarifs`,
+    success_url: `${appUrl}/abonnement?success=true`,
+    cancel_url: `${appUrl}/abonnement`,
   })
 
   if (!session.url) {
@@ -92,7 +92,7 @@ export async function createPortalSession(
 
   const portalSession = await stripe.billingPortal.sessions.create({
     customer: customerId,
-    return_url: returnUrl ?? `${appUrl}/dashboard/abonnement`,
+    return_url: returnUrl ?? `${appUrl}/abonnement`,
   })
 
   return { url: portalSession.url }
