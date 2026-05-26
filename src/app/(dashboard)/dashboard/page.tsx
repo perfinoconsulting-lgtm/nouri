@@ -6,6 +6,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import ChildCard from '@/components/dashboard/ChildCard'
 import StatsCard from '@/components/dashboard/StatsCard'
+import AddChildButton from '@/components/dashboard/AddChildButton'
 import Link from 'next/link'
 import type { ChildWithStats, ChildStats, SubscriptionInfo } from '@/types/dashboard'
 
@@ -224,25 +225,12 @@ export default async function DashboardPage() {
       {enrichedChildren.length > 0 ? (
         <div>
           <h2 className="text-xl font-bold text-[#1A3A5C] mb-5">Mes enfants</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {enrichedChildren.map((child) => (
               <ChildCard key={child.id} child={child} />
             ))}
 
-            {enrichedChildren.length < 5 && (
-              <Link
-                href="/enfants"
-                className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center gap-3 p-8 hover:bg-gray-100 hover:border-gray-300 transition text-center min-h-[200px]"
-              >
-                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-2xl shadow-sm border border-gray-100">
-                  +
-                </div>
-                <div>
-                  <p className="font-bold text-[#1A3A5C]">Ajouter un enfant</p>
-                  <p className="text-sm text-gray-400 mt-1">Créer un nouveau profil</p>
-                </div>
-              </Link>
-            )}
+            {enrichedChildren.length < 5 && <AddChildButton />}
           </div>
         </div>
       ) : (
