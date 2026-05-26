@@ -1,19 +1,9 @@
-/**
- * app/api/stripe/checkout/route.ts — Création de session Stripe Checkout
- *
- * Variables d'environnement requises :
- *   STRIPE_SECRET_KEY
- *   STRIPE_PRICE_ID        → ID du tarif 2€/mois
- *   NEXT_PUBLIC_APP_URL
- */
-
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { createOrGetCustomer, createCheckoutSession } from '@/lib/stripe'
 
 export async function POST(req: Request) {
   try {
-    // 1. Vérifier l'authentification Supabase
     const supabase = createServerSupabaseClient()
     const {
       data: { session },
@@ -26,7 +16,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // 2. Valider le body
     let body: { childId?: string }
     try {
       body = await req.json()
@@ -42,10 +31,10 @@ export async function POST(req: Request) {
       )
     }
 
-    // 3. Vérifier que l'enfant appartient bien à ce parent (sécurité RLS)
+    // Vérification ownership — la RLS garantit l'isolation en base
     const { data: child, error: childError } = await supabase
       .from('children')
-      .select('id, prenom')
+      .select('id')
       .eq('id', childId)
       .eq('parent_id', session.user.id)
       .single()
@@ -57,7 +46,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // 4. Récupérer les infos du parent
     const { data: parent, error: parentError } = await supabase
       .from('parents')
       .select('email, prenom')
@@ -65,13 +53,9 @@ export async function POST(req: Request) {
       .single()
 
     if (parentError || !parent) {
-      return NextResponse.json(
-        { error: 'Profil parent introuvable.' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Profil parent introuvable.' }, { status: 404 })
     }
 
-    // 5. Vérifier la config Stripe
     const priceId = process.env.STRIPE_PRICE_ID
     if (!priceId) {
       return NextResponse.json(
@@ -80,26 +64,13 @@ export async function POST(req: Request) {
       )
     }
 
-    // 6. Créer ou récupérer le Customer Stripe
-    const customerId = await createOrGetCustomer(
-      session.user.id,
-      parent.email,
-      parent.prenom
-    )
+    const customer = await createOrGetCustomer(session.user.id, parent.email, parent.prenom)
+    const { url } = await createCheckoutSession(customer.id, childId, session.user.id, priceId)
 
-    // 7. Créer la session Checkout
-    const checkoutUrl = await createCheckoutSession(
-      customerId,
-      childId,
-      session.user.id,
-      priceId
-    )
-
-    // 8. Retourner l'URL (le client fait la redirection)
-    return NextResponse.json({ url: checkoutUrl })
+    return NextResponse.json({ url })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Erreur inconnue'
-    console.error('❌ Checkout API Error:', message)
+    console.error('Checkout API error:', message)
     return NextResponse.json(
       { error: `Une erreur est survenue : ${message}` },
       { status: 500 }
