@@ -60,16 +60,25 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
   // Bypass Auth pour Stripe Webhook
-  if (pathname.startsWith('/api/webhook')) {
+  if (pathname.startsWith('/api/stripe/webhook')) {
     return response
   }
 
   const isProtectedRoute = pathname.startsWith('/dashboard') || pathname.startsWith('/jouer')
+  const isAdminRoute = pathname.startsWith('/admin')
   const isAuthRoute = pathname.startsWith('/connexion') || pathname.startsWith('/inscription')
 
   // Redirection si non authentifié vers route protégée
-  if (isProtectedRoute && !session) {
+  if ((isProtectedRoute || isAdminRoute) && !session) {
     return NextResponse.redirect(new URL('/connexion', request.url))
+  }
+
+  // Protection Admin
+  if (isAdminRoute && session) {
+    const adminEmails = (process.env.ADMIN_EMAILS || '').split(',')
+    if (!adminEmails.includes(session.user.email || '')) {
+      return new NextResponse(null, { status: 404 })
+    }
   }
 
   // Redirection si authentifié vers page de login/inscription

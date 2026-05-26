@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Navbar from '@/components/ui/Navbar'
 
 export const metadata: Metadata = {
   title: "NourAl — Apprendre l'arabe en s'amusant | Application pour enfants musulmans",
@@ -29,28 +30,16 @@ export default function PublicLayout({
 }) {
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="absolute top-0 w-full z-50 p-6">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold text-white">NourAl<span className="text-accent">.</span></Link>
-          <nav className="hidden md:flex gap-6 text-white font-medium">
-            <Link href="/a-propos" className="hover:text-accent transition">À Propos</Link>
-            <Link href="/tarifs" className="hover:text-accent transition">Tarifs</Link>
-            <Link href="/connexion" className="hover:text-accent transition">Connexion</Link>
-          </nav>
-          <Link href="/inscription" className="px-5 py-2 bg-accent text-white rounded-xl font-bold hover:bg-accent/90 transition shadow-lg">
-            Essai Gratuit
-          </Link>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="flex-grow">
         {children}
       </main>
 
-      <footer className="bg-primary text-white py-12 px-6">
+      <footer className="bg-[#1A3A5C] text-white py-12 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div className="col-span-1 md:col-span-2">
-            <h3 className="text-2xl font-bold mb-4">NourAl<span className="text-accent">.</span></h3>
+            <h3 className="text-2xl font-bold mb-4">NourAl 🌙</h3>
             <p className="text-gray-400 max-w-sm">L'application simple et ludique pour transmettre la langue arabe à vos enfants.</p>
           </div>
           <div>
@@ -66,7 +55,7 @@ export default function PublicLayout({
             <ul className="space-y-2 text-gray-400">
               <li><Link href="/mentions-legales" className="hover:text-white transition">Mentions légales</Link></li>
               <li><Link href="/cgv" className="hover:text-white transition">CGV</Link></li>
-              <li><Link href="/politique" className="hover:text-white transition">Confidentialité</Link></li>
+              <li><Link href="/politique" className="hover:text-white transition">Politique confidentialité</Link></li>
             </ul>
           </div>
         </div>
