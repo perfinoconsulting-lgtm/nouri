@@ -30,40 +30,32 @@ function getSupabaseAdmin() {
   return createClient(url, key)
 }
 
-// Désactiver le body parsing de Next.js — on doit lire le corps brut pour
-// la vérification de signature Stripe
+// Désactiver le body parsing automatique de Next.js — obligatoire pour la
+// vérification de signature Stripe
 export const runtime = 'nodejs'
 
-export async function POST(req: Request) {
-  // 1. Lire le corps brut (IMPORTANT : ne pas utiliser req.json())
-  const body = await req.text()
-  const sig = req.headers.get('stripe-signature')
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+export async function POST(request: Request) {
+  // 1. Lire le corps brut — ne JAMAIS utiliser request.json()
+  const body = await request.text()
+  const signature = request.headers.get('stripe-signature')
 
-  if (!sig || !webhookSecret) {
-    console.error('❌ Webhook : signature ou secret manquant')
-    return NextResponse.json(
-      { error: 'Signature Stripe ou secret webhook manquant.' },
-      { status: 400 }
-    )
+  if (!signature) {
+    return NextResponse.json({ error: 'Signature manquante' }, { status: 400 })
   }
 
   // 2. Vérifier la signature Stripe
   let event: Stripe.Event
 
   try {
-    event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Erreur inconnue'
-    console.error(`❌ Webhook signature invalide : ${message}`)
-    return NextResponse.json(
-      { error: `Signature invalide : ${message}` },
-      { status: 400 }
-    )
+    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!)
+  } catch {
+    return NextResponse.json({ error: 'Signature invalide' }, { status: 400 })
   }
 
   const supabase = getSupabaseAdmin()
 
+  // 3. Traiter l'événement — toujours retourner 200 même si le traitement échoue
+  // Un 4xx/5xx provoquerait des retrys inutiles côté Stripe
   try {
     switch (event.type) {
       // ── Paiement initial réussi → création de l'abonnement ─────────────────
@@ -72,78 +64,79 @@ export async function POST(req: Request) {
 
         if (session.mode !== 'subscription' || !session.subscription) break
 
-        // Récupérer les détails de l'abonnement Stripe
+        const parentId = session.metadata?.parentId
+        const childId = session.metadata?.childId
+
+        if (!parentId || !childId) {
+          console.error('❌ Métadonnées parentId/childId manquantes dans la session checkout')
+          break
+        }
+
+        // Récupérer les détails complets de l'abonnement Stripe
         const subscription = await stripe.subscriptions.retrieve(
           session.subscription as string
         )
 
-        const parentId = subscription.metadata.parentId
-        const childId = subscription.metadata.childId
-
-        if (!parentId || !childId) {
-          console.error('❌ Métadonnées parentId/childId manquantes dans le subscription')
-          break
-        }
-
-        // Insérer ou mettre à jour dans la table subscriptions
-        // current_period_start : champ renommé dans les API Stripe récentes
-        const sub = subscription as unknown as Record<string, unknown>
-        const periodStart = typeof sub.current_period_start === 'number'
-          ? new Date(sub.current_period_start * 1000).toISOString()
+        // Accès via cast — current_period_* sont dépréciés dans les types Stripe récents
+        const subRaw = subscription as unknown as Record<string, unknown>
+        const currentPeriodEnd = typeof subRaw.current_period_end === 'number'
+          ? new Date(subRaw.current_period_end * 1000).toISOString()
+          : null
+        const currentPeriodStart = typeof subRaw.current_period_start === 'number'
+          ? new Date(subRaw.current_period_start * 1000).toISOString()
           : new Date().toISOString()
 
+        const customerId = typeof session.customer === 'string'
+          ? session.customer
+          : (session.customer as Stripe.Customer | null)?.id ?? null
+
+        // Upsert idempotent : si l'événement arrive deux fois, on écrase sans doublon
         const { error } = await supabase.from('subscriptions').upsert(
           {
             parent_id: parentId,
             child_id: childId,
             stripe_subscription_id: subscription.id,
-            stripe_price_id: subscription.items.data[0].price.id,
-            status: subscription.status,
-            current_period_start: periodStart,
+            stripe_customer_id: customerId,
+            status: 'active',
+            current_period_start: currentPeriodStart,
+            current_period_end: currentPeriodEnd,
           },
           { onConflict: 'stripe_subscription_id' }
         )
 
         if (error) {
-          console.error('❌ Erreur Supabase lors de la création abonnement :', error)
+          console.error('❌ Erreur Supabase création abonnement :', error)
         } else {
-          console.log(
-            `✅ Abonnement activé pour l'enfant ${childId} (parent ${parentId})`
-          )
-          // TODO : Envoyer l'email de bienvenue via Resend
-          console.log(`📧 Email de bienvenue à envoyer au parent ${parentId}`)
+          console.log(JSON.stringify({ event: 'subscription_created', childId }))
         }
         break
       }
 
-      // ── Abonnement modifié ────────────────────────────────────────────────
+      // ── Abonnement modifié (renouvellement, annulation programmée, etc.) ────
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription
         const subRaw = subscription as unknown as Record<string, unknown>
-        const updatedPeriodStart = typeof subRaw.current_period_start === 'number'
-          ? new Date(subRaw.current_period_start * 1000).toISOString()
-          : new Date().toISOString()
+
+        const currentPeriodEnd = typeof subRaw.current_period_end === 'number'
+          ? new Date(subRaw.current_period_end * 1000).toISOString()
+          : null
 
         const { error } = await supabase
           .from('subscriptions')
           .update({
             status: subscription.status,
-            stripe_price_id: subscription.items.data[0].price.id,
-            current_period_start: updatedPeriodStart,
+            current_period_end: currentPeriodEnd,
+            cancel_at_period_end: subscription.cancel_at_period_end,
           })
           .eq('stripe_subscription_id', subscription.id)
 
         if (error) {
-          console.error('❌ Erreur Supabase lors de la mise à jour abonnement :', error)
-        } else {
-          console.log(
-            `🔄 Abonnement mis à jour : ${subscription.id} → statut : ${subscription.status}`
-          )
+          console.error('❌ Erreur Supabase mise à jour abonnement :', error)
         }
         break
       }
 
-      // ── Abonnement annulé ─────────────────────────────────────────────────
+      // ── Abonnement annulé définitivement ─────────────────────────────────────
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription
 
@@ -153,70 +146,70 @@ export async function POST(req: Request) {
           .eq('stripe_subscription_id', subscription.id)
 
         if (error) {
-          console.error('❌ Erreur Supabase lors de l\'annulation :', error)
-        } else {
-          console.log(`❌ Abonnement annulé : ${subscription.id}`)
+          console.error("❌ Erreur Supabase annulation abonnement :", error)
         }
         break
       }
 
-      // ── Paiement échoué ───────────────────────────────────────────────────
+      // ── Paiement échoué ───────────────────────────────────────────────────────
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice
-        // invoice.subscription renommé dans les API Stripe récentes
         const invRaw = invoice as unknown as Record<string, unknown>
-        const failedSubId = invRaw.subscription as string | null
 
-        if (!failedSubId) break
+        const customerId = typeof invRaw.customer === 'string' ? invRaw.customer : null
+        if (!customerId) break
 
         const { error } = await supabase
           .from('subscriptions')
           .update({ status: 'past_due' })
-          .eq('stripe_subscription_id', failedSubId)
+          .eq('stripe_customer_id', customerId)
 
         if (error) {
           console.error('❌ Erreur Supabase paiement échoué :', error)
         } else {
-          console.error(`⚠️  Paiement échoué pour l'abonnement ${failedSubId} — statut : past_due`)
-          // TODO : Envoyer un email d'alerte au parent via Resend
+          const amount = typeof invRaw.amount_due === 'number' ? invRaw.amount_due : 0
+          const reason =
+            typeof invRaw.last_finalization_error === 'object' &&
+            invRaw.last_finalization_error !== null
+              ? String((invRaw.last_finalization_error as Record<string, unknown>).message ?? 'inconnu')
+              : 'inconnu'
+          console.log(JSON.stringify({ event: 'payment_failed', amount, reason }))
         }
         break
       }
 
-      // ── Paiement réussi (renouvellement mensuel) ──────────────────────────
+      // ── Paiement réussi (renouvellement mensuel) ──────────────────────────────
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object as Stripe.Invoice
-        const invSuccessRaw = invoice as unknown as Record<string, unknown>
-        const successSubId = invSuccessRaw.subscription as string | null
-        const billingReason = invSuccessRaw.billing_reason as string | null
+        const invRaw = invoice as unknown as Record<string, unknown>
 
-        if (!successSubId || billingReason === 'subscription_create') break
+        // Ignorer l'événement de la création initiale — déjà géré par checkout.session.completed
+        if (invRaw.billing_reason === 'subscription_create') break
+
+        const customerId = typeof invRaw.customer === 'string' ? invRaw.customer : null
+        if (!customerId) break
 
         const { error } = await supabase
           .from('subscriptions')
           .update({ status: 'active' })
-          .eq('stripe_subscription_id', successSubId)
+          .eq('stripe_customer_id', customerId)
 
         if (error) {
-          console.error('❌ Erreur Supabase paiement réussi :', error)
-        } else {
-          console.log(`💰 Paiement renouvellement réussi : ${successSubId}`)
+          console.error('❌ Erreur Supabase renouvellement réussi :', error)
         }
         break
       }
 
       default:
-        // Événements non gérés — aucune action
-        console.log(`ℹ️  Événement Stripe non géré : ${event.type}`)
+        break
     }
-
-    return NextResponse.json({ received: true }, { status: 200 })
   } catch (err: unknown) {
+    // Loguer l'erreur interne mais ne pas retourner d'erreur HTTP
+    // → Stripe retentera l'envoi si on répond autre chose que 200
     const message = err instanceof Error ? err.message : 'Erreur inconnue'
     console.error('❌ Erreur interne Webhook :', message)
-    return NextResponse.json(
-      { error: `Erreur interne : ${message}` },
-      { status: 500 }
-    )
   }
+
+  // Toujours retourner 200 — même si le traitement a échoué
+  return NextResponse.json({ received: true })
 }
