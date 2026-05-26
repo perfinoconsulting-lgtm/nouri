@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
-import { Noto_Naskh_Arabic, Inter } from "next/font/google";
+import { Noto_Naskh_Arabic, Inter, Baloo_2 } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
-const notoNaskh = Noto_Naskh_Arabic({ 
+const notoNaskh = Noto_Naskh_Arabic({
   subsets: ["arabic"],
   variable: '--font-noto-naskh',
   weight: ['400', '500', '600', '700']
+});
+const baloo2 = Baloo_2({
+  subsets: ["latin"],
+  variable: '--font-baloo',
+  weight: ['400', '600', '800'],
 });
 
 export const metadata: Metadata = {
@@ -20,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={`${inter.variable} ${notoNaskh.variable}`}>
+    <html lang="fr" className={`${inter.variable} ${notoNaskh.variable} ${baloo2.variable}`}>
       <body className="min-h-screen antialiased bg-white text-primary">
         {children}
       </body>

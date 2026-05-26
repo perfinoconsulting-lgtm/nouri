@@ -17,7 +17,8 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-inter)", "sans-serif"],
-        arabic: ["var(--font-noto-naskh)", "sans-serif"],
+        arabic: ["var(--font-noto-naskh)", "serif"],
+        baloo: ["var(--font-baloo)", "cursive"],
       },
     },
   },
