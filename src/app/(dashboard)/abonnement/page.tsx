@@ -1,18 +1,7 @@
-/**
- * app/(dashboard)/abonnement/page.tsx -- Gestion des abonnements par enfant
- *
- * Variables d'environnement requises :
- *   NEXT_PUBLIC_SUPABASE_URL
- *   NEXT_PUBLIC_SUPABASE_ANON_KEY
- *   STRIPE_SECRET_KEY
- *   STRIPE_PRICE_ID
- *   NEXT_PUBLIC_APP_URL
- */
-
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import SubscribeButton from '@/components/ui/SubscribeButton'
-import { CheckCircle2, CreditCard } from 'lucide-react'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 interface Child {
   id: string
@@ -24,24 +13,26 @@ interface Child {
 interface Subscription {
   child_id: string
   status: string
-  current_period_start: string | null
+  current_period_end: string | null
 }
 
-function formatNextRenewal(start: string | null): string {
-  if (!start) return '-'
-  const d = new Date(start)
-  d.setDate(d.getDate() + 30)
-  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+function formatRenewal(date: string | null): string {
+  if (!date) return ''
+  return new Date(date).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
 }
 
 type StatusKey = 'active' | 'trialing' | 'past_due' | 'canceled' | 'inactive'
 
-const STATUS_CONFIG: Record<StatusKey, { label: string; color: string; dot: string }> = {
-  active:   { label: 'Actif',      color: 'bg-green-50  text-green-700  border border-green-100',  dot: 'bg-green-500'  },
-  trialing: { label: 'Essai (7j)', color: 'bg-orange-50 text-orange-700 border border-orange-100', dot: 'bg-orange-500' },
-  past_due: { label: 'En retard',  color: 'bg-red-50    text-red-700    border border-red-100',    dot: 'bg-red-500'    },
-  canceled: { label: 'Annule',     color: 'bg-gray-100  text-gray-600   border border-gray-200',   dot: 'bg-gray-400'   },
-  inactive: { label: 'Inactif',    color: 'bg-gray-100  text-gray-500   border border-gray-100',   dot: 'bg-gray-300'   },
+const STATUS_CONFIG: Record<StatusKey, { label: string; color: string }> = {
+  active:   { label: 'Premium ✨ Actif',         color: 'bg-green-100 text-green-800'   },
+  trialing: { label: 'Essai gratuit 🎁',         color: 'bg-orange-100 text-orange-800' },
+  past_due: { label: '⚠️ Paiement en attente',   color: 'bg-red-100 text-red-800'       },
+  canceled: { label: 'Résilié',                  color: 'bg-gray-100 text-gray-600'     },
+  inactive: { label: 'Gratuit',                  color: 'bg-gray-100 text-gray-500'     },
 }
 
 function getStatusConfig(status: string) {
@@ -49,30 +40,12 @@ function getStatusConfig(status: string) {
 }
 
 const PREMIUM_FEATURES = [
-  {
-    title: 'Alphabet complet',
-    text: 'Toutes les 28 lettres avec illustrations, sons natifs et variations.',
-  },
-  {
-    title: 'Mots et petites sourates',
-    text: 'Vocabulaire courant + Al-Fatiha, Al-Ikhlas et autres sourates courtes.',
-  },
-  {
-    title: 'Repetition espacee (SM-2)',
-    text: 'Algorithme scientifique pour memoriser durablement.',
-  },
-  {
-    title: 'Suivi parental avance',
-    text: 'Statistiques : lettres maitrisees, temps passe, scores de quiz.',
-  },
-  {
-    title: 'Profils illimites',
-    text: 'Abonnez chaque enfant independamment.',
-  },
-  {
-    title: 'Sans engagement',
-    text: 'Resiliation en 1 clic depuis votre espace. Aucune surprise.',
-  },
+  { title: 'Alphabet complet',         text: 'Toutes les 28 lettres avec illustrations, sons natifs et variations.' },
+  { title: 'Mots et petites sourates', text: 'Vocabulaire courant + Al-Fatiha, Al-Ikhlas et autres sourates courtes.' },
+  { title: 'Répétition espacée (SM-2)', text: 'Algorithme scientifique pour mémoriser durablement.' },
+  { title: 'Suivi parental avancé',    text: 'Lettres maîtrisées, temps passé, scores de quiz.' },
+  { title: 'Profils illimités',        text: 'Abonnez chaque enfant indépendamment.' },
+  { title: 'Sans engagement',          text: 'Résiliation en 1 clic depuis votre espace. Aucune surprise.' },
 ]
 
 export default async function AbonnementPage({
@@ -81,11 +54,8 @@ export default async function AbonnementPage({
   searchParams: { success?: string }
 }) {
   const supabase = createServerSupabaseClient()
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  if (!session) return null
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) redirect('/connexion')
 
   const { data: children } = await supabase
     .from('children')
@@ -95,7 +65,7 @@ export default async function AbonnementPage({
 
   const { data: subscriptions } = await supabase
     .from('subscriptions')
-    .select('child_id, status, current_period_start')
+    .select('child_id, status, current_period_end')
     .eq('parent_id', session.user.id)
 
   const isSuccess = searchParams.success === 'true'
@@ -105,25 +75,22 @@ export default async function AbonnementPage({
   return (
     <div className="space-y-8 max-w-5xl">
 
-      {/* En-tete */}
+      {/* En-tête */}
       <div>
-        <h1 className="text-3xl font-bold text-[#0a192f] mb-1">Abonnements</h1>
+        <h1 className="text-3xl font-bold text-[#1A3A5C] mb-1">💳 Abonnements</h1>
         <p className="text-gray-500">
-          Gerez acces Premium de vos enfants —{' '}
-          <strong className="text-[#0a192f]">2 euros/mois</strong> par enfant, sans engagement.
+          Gérez l&apos;accès Premium de vos enfants —{' '}
+          <strong className="text-[#1A3A5C]">2€/mois</strong> par enfant, sans engagement.
         </p>
       </div>
 
-      {/* Bandeau succes */}
+      {/* Bandeau succès */}
       {isSuccess && (
         <div className="flex items-center gap-3 bg-green-50 border border-green-200 text-green-700 p-4 rounded-2xl">
-          <CheckCircle2 className="text-green-500 shrink-0" size={22} />
-          <div>
-            <p className="font-semibold">Paiement reussi !</p>
-            <p className="text-sm text-green-600">
-              L&apos;abonnement est actif. Votre enfant peut profiter de NourAl Premium.
-            </p>
-          </div>
+          <span className="text-2xl shrink-0">🎉</span>
+          <p className="font-semibold">
+            Abonnement activé ! Votre enfant a accès à tout NourAl !
+          </p>
         </div>
       )}
 
@@ -131,13 +98,13 @@ export default async function AbonnementPage({
       {childrenList.length === 0 ? (
         <div className="bg-white border border-gray-100 rounded-3xl p-12 text-center shadow-sm">
           <div className="text-5xl mb-4">👨‍👩‍👧</div>
-          <h3 className="text-xl font-bold text-[#0a192f] mb-2">Aucun enfant ajoute</h3>
+          <h3 className="text-xl font-bold text-[#1A3A5C] mb-2">Aucun enfant ajouté</h3>
           <p className="text-gray-500 mb-6">
             Ajoutez d&apos;abord un profil enfant pour souscrire un abonnement.
           </p>
           <Link
             href="/enfants"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#F5A623] text-white font-bold rounded-xl hover:bg-[#e09520] transition"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#F5A623] text-[#1A3A5C] font-bold rounded-[50px] hover:bg-[#e09520] transition"
           >
             Ajouter un enfant
           </Link>
@@ -149,44 +116,40 @@ export default async function AbonnementPage({
             const status = childSub?.status ?? 'inactive'
             const statusConf = getStatusConfig(status)
             const isSubscribed = ['active', 'trialing', 'past_due'].includes(status)
+            const renewalDate = formatRenewal(childSub?.current_period_end ?? null)
 
             return (
               <div
                 key={child.id}
                 className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow"
               >
-                {/* En-tete carte */}
-                <div className="flex items-start justify-between mb-6">
+                {/* En-tête carte */}
+                <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-3xl shadow-inner shrink-0">
                       {child.avatar ?? child.prenom[0]}
                     </div>
                     <div>
-                      <h3 className="font-bold text-lg text-[#0a192f]">{child.prenom}</h3>
+                      <h3 className="font-bold text-lg text-[#1A3A5C]">{child.prenom}</h3>
                       <p className="text-sm text-gray-400">{child.age} ans</p>
                     </div>
                   </div>
 
                   {/* Badge statut */}
-                  <div
-                    className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 whitespace-nowrap ${statusConf.color}`}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full ${statusConf.dot}`} />
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap ${statusConf.color}`}>
                     {statusConf.label}
-                  </div>
+                  </span>
                 </div>
 
                 {/* Date de renouvellement */}
-                {isSubscribed && childSub?.current_period_start && (
+                {isSubscribed && renewalDate && (
                   <p className="text-xs text-gray-400 mb-4">
-                    Prochain renouvellement :{' '}
-                    <span className="font-medium text-gray-600">
-                      {formatNextRenewal(childSub.current_period_start)}
-                    </span>
+                    Renouvellement le{' '}
+                    <span className="font-medium text-gray-600">{renewalDate}</span>
                   </p>
                 )}
 
-                {/* Bouton d'action */}
+                {/* Bouton */}
                 <div className="mt-auto pt-4 border-t border-gray-50">
                   <SubscribeButton
                     childId={child.id}
@@ -200,20 +163,20 @@ export default async function AbonnementPage({
         </div>
       )}
 
-      {/* Section Pourquoi s'abonner */}
-      <div className="bg-[#0a192f] rounded-[2rem] p-8 text-white relative overflow-hidden mt-4">
+      {/* Section Pourquoi s'abonner ? */}
+      <div className="bg-[#1A3A5C] rounded-[2rem] p-8 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-72 h-72 bg-[#F5A623]/20 rounded-full blur-3xl transform translate-x-1/3 -translate-y-1/3 pointer-events-none" />
 
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-6">
-            <CreditCard className="text-[#F5A623]" size={28} />
-            <h2 className="text-2xl font-bold">Pourquoi s&apos;abonner au Premium ?</h2>
-          </div>
+          <h2 className="text-2xl font-bold mb-1">Pourquoi s&apos;abonner ?</h2>
+          <p className="text-[#F5A623] font-bold text-lg mb-6">
+            Seulement 2€/mois/enfant — soit 0,06€ par jour
+          </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {PREMIUM_FEATURES.map((item) => (
               <div key={item.title} className="flex items-start gap-3">
-                <CheckCircle2 className="text-[#F5A623] shrink-0 mt-0.5" size={18} />
+                <span className="text-[#F5A623] shrink-0 mt-0.5 text-base">✨</span>
                 <div>
                   <p className="font-semibold text-white text-sm">{item.title}</p>
                   <p className="text-blue-200 text-xs mt-0.5">{item.text}</p>
@@ -223,6 +186,13 @@ export default async function AbonnementPage({
           </div>
         </div>
       </div>
+
+      {/* Note rassurante */}
+      <div className="text-center text-sm text-gray-500 space-y-1 pb-4">
+        <p>🔒 Paiement 100% sécurisé par Stripe</p>
+        <p>Sans engagement · Résiliable en 1 clic depuis cette page</p>
+      </div>
+
     </div>
   )
 }

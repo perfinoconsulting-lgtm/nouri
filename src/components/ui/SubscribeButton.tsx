@@ -68,15 +68,11 @@ export default function SubscribeButton({
       <button
         onClick={handleAction}
         disabled={disabled || isLoading}
-        className={`flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold transition-all shadow-sm w-full text-sm ${
-          isSubscribed
-            ? 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-            : 'bg-[#F5A623] text-white hover:bg-[#e09520] hover:shadow-md hover:-translate-y-0.5 transform'
-        } disabled:opacity-50 disabled:cursor-not-allowed`}
+        className="flex items-center justify-center gap-2 px-5 py-3 rounded-[50px] font-bold transition-all shadow-sm w-full text-sm bg-[#F5A623] text-[#1A3A5C] hover:bg-[#e09520] hover:shadow-md hover:-translate-y-0.5 transform disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isLoading ? (
           <>
-            <Loader2 size={16} className="animate-spin" />
+            <Loader2 size={16} className="animate-spin text-white" />
             <span>Chargement…</span>
           </>
         ) : isSubscribed ? (
@@ -87,7 +83,7 @@ export default function SubscribeButton({
         ) : (
           <>
             <CreditCard size={16} />
-            <span>Abonner {childPrenom}</span>
+            <span>Abonner {childPrenom} — 2€/mois</span>
           </>
         )}
       </button>
