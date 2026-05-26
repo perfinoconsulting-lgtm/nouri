@@ -12,6 +12,7 @@ Tarif : 2€/mois/enfant. Langue interface : français uniquement.
 - Vercel (hébergement + cron jobs)
 - Resend (emails transactionnels)
 - React Email (templates)
+- Cloudflare Workers AI (analyse images future)
 
 ## Conventions OBLIGATOIRES
 - TypeScript strict — zéro `any`
@@ -57,3 +58,51 @@ Toujours vérifier ownership avant toute opération sur un enfant.
 - ✅ Base de données Supabase + RLS
 - ✅ Auth parent (inscription + connexion)
 - 🔄 Landing page (liens à corriger)
+
+---
+
+## SKILLS INSTALLÉS
+
+### 1. Frontend Design
+Source : https://skills.sh/anthropics/skills/frontend-design
+Usage : Design raffiné, composants UI, animations, cohérence visuelle.
+Lire /skills/frontend-design/SKILL.md avant tout travail de design.
+
+### 2. Next.js
+Source : https://skills.sh/vercel-labs/vercel-plugin/nextjs
+Usage : App Router, Server Components, API routes, optimisations.
+Lire /skills/nextjs/SKILL.md avant toute page ou route.
+
+### 3. Arabic RTL
+Fichier : /skills/arabic-rtl/SKILL.md
+Usage : Rendu texte arabe, direction RTL, font Noto Naskh Arabic, harakat.
+OBLIGATOIRE pour tout composant affichant du texte arabe.
+
+### 4. Supabase Auth
+Fichier : /skills/supabase-auth/SKILL.md
+Usage : Auth parent, RLS, Server Components avec cookies, middleware.
+
+### 5. Stripe Subscriptions
+Fichier : /skills/stripe-subscriptions/SKILL.md
+Usage : Checkout, webhooks, Customer Portal, abonnements récurrents.
+
+### 6. Game UI (Enfants)
+Fichier : /skills/game-ui/SKILL.md
+Usage : Interface jeu enfant, animations récompenses, canvas dessin, QCM.
+
+### 7. PWA
+Fichier : /skills/pwa/SKILL.md
+Usage : Service Worker, manifest, cache, mode offline, install prompt.
+
+### 8. Email Templates
+Fichier : /skills/email-templates/SKILL.md
+Usage : React Email + Resend, templates transactionnels.
+
+### 9. RGPD Mineurs
+Fichier : /skills/rgpd/SKILL.md
+Usage : Conformité CNIL données enfants, CGV, politique confidentialité.
+
+### 10. SEO Next.js
+Fichier : /skills/seo/SKILL.md
+Usage : Metadata, Schema.org, sitemap, OG image, robots.txt.
+
