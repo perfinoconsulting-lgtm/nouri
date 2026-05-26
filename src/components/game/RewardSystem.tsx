@@ -41,9 +41,9 @@ const CONFETTI_COLORS = ['#F5A623', '#FF6B9D', '#00C9B1', '#9B59B6', '#27AE60']
 function playSound(freq: number, duration: number, type: OscillatorType = 'sine'): void {
   if (typeof window === 'undefined') return
   try {
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext
-    if (!AudioContext) return
-    const context = new AudioContext()
+    const AudioContextClass = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+    if (!AudioContextClass) return
+    const context = new AudioContextClass()
     const oscillator = context.createOscillator()
     const gain = context.createGain()
 

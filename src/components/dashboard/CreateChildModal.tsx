@@ -33,7 +33,7 @@ const NIVEAUX = [
 
 const schema = z.object({
   prenom: z.string().min(1, 'Le prénom est requis').max(30, 'Max 30 caractères'),
-  age: z.number({ invalid_type_error: "L'âge est requis" }).min(4).max(14),
+  age: z.number({ message: "L'âge est requis" }).min(4).max(14),
   avatar: z.string(),
   niveau: z.number().min(1).max(5),
 })
