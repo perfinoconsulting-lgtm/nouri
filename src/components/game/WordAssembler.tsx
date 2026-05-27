@@ -11,7 +11,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react'
 import SyllableCard from './SyllableCard'
-import { getSyllabeById } from '@/lib/data/syllabes'
+import { getSyllabeById, type Syllabe } from '@/lib/data/syllabes'
 import { useRewards } from '@/lib/reward-context'
 import { speakArabic } from '@/lib/arabic-tts'
 
