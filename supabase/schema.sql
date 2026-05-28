@@ -204,6 +204,27 @@ ON sessions FOR UPDATE USING (
 
 
 ---------------------------------------------
+-- 8. Table MILESTONE_NOTIFICATIONS
+---------------------------------------------
+CREATE TABLE milestone_notifications (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  child_id UUID REFERENCES children(id) ON DELETE CASCADE,
+  milestone_type TEXT NOT NULL,
+  notified_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(child_id, milestone_type)
+);
+
+ALTER TABLE milestone_notifications ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "parent_own" ON milestone_notifications
+  FOR ALL USING (
+    EXISTS (SELECT 1 FROM children WHERE id = child_id AND parent_id = auth.uid())
+  );
+
+CREATE INDEX idx_milestone_child_id ON milestone_notifications(child_id);
+
+
+---------------------------------------------
 -- Fonctions SQL (RPC)
 ---------------------------------------------
 

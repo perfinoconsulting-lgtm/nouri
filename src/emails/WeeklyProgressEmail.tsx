@@ -12,6 +12,8 @@ const colors = {
 export interface ChildWeeklyStats {
   prenom: string
   avatar: string
+  /** Déterminé par sessionsCount > 0 sur la semaine */
+  isActive: boolean
   lettersSeenThisWeek: number
   lettersMasteredTotal: number
   sessionsCount: number
@@ -25,7 +27,37 @@ interface WeeklyProgressEmailProps {
   children: ChildWeeklyStats[]
 }
 
-function ChildStatsCard({ child }: { child: ChildWeeklyStats }) {
+/** Barre de progression lettres maîtrisées / 28 */
+function ProgressBar({ mastered }: { mastered: number }) {
+  const pct = Math.min(100, Math.round((mastered / 28) * 100))
+  return (
+    <div style={{ margin: '8px 0' }}>
+      <Text style={{ color: colors.textMuted, fontSize: '12px', margin: '0 0 4px' }}>
+        Alphabet maîtrisé : {mastered}/28 lettres ({pct}%)
+      </Text>
+      <div
+        style={{
+          backgroundColor: '#e5e7eb',
+          borderRadius: '4px',
+          height: '8px',
+          width: '100%',
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: colors.turquoise,
+            height: '8px',
+            borderRadius: '4px',
+            width: `${pct}%`,
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
+/** Carte stats pour un enfant actif cette semaine */
+function ActiveChildCard({ child }: { child: ChildWeeklyStats }) {
   return (
     <div
       style={{
@@ -39,38 +71,45 @@ function ChildStatsCard({ child }: { child: ChildWeeklyStats }) {
       <Text
         style={{
           color: colors.text,
-          fontSize: '18px',
+          fontSize: '17px',
           fontWeight: 'bold',
-          margin: '0 0 12px',
+          margin: '0 0 4px',
         }}
       >
-        {child.prenom}
+        {child.prenom} ⭐
       </Text>
 
-      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' as const }}>
-        <StatBadge label="Lettres vues" value={child.lettersSeenThisWeek} emoji="👁️" />
-        <StatBadge label="Maîtrisées" value={child.lettersMasteredTotal} emoji="✅" />
+      <Text style={{ color: colors.turquoise, fontSize: '13px', margin: '0 0 16px', fontWeight: 'bold' }}>
+        {child.lettersSeenThisWeek} lettre{child.lettersSeenThisWeek > 1 ? 's' : ''} pratiquée
+        {child.lettersSeenThisWeek > 1 ? 's' : ''} cette semaine
+      </Text>
+
+      {/* Stats de la semaine */}
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const, margin: '0 0 12px' }}>
         <StatBadge label="Sessions" value={child.sessionsCount} emoji="🎮" />
         <StatBadge label="Minutes" value={child.totalMinutes} emoji="⏱️" />
+        <StatBadge label="Maîtrisées" value={child.lettersMasteredTotal} emoji="✅" />
       </div>
+
+      <ProgressBar mastered={child.lettersMasteredTotal} />
 
       {child.bestStreak >= 3 && (
         <Text
           style={{
             color: colors.accent,
-            fontSize: '14px',
-            margin: '12px 0 0',
+            fontSize: '13px',
+            margin: '10px 0 0',
             fontWeight: 'bold',
           }}
         >
-          🔥 Meilleure série : {child.bestStreak} jours consécutifs !
+          🔥 {child.bestStreak} jours de suite — excellente régularité !
         </Text>
       )}
 
       {child.topLetter && (
-        <Text style={{ color: colors.textMuted, fontSize: '14px', margin: '4px 0 0' }}>
-          Lettre préférée cette semaine :{' '}
-          <span style={{ fontFamily: 'serif', fontSize: '18px', color: colors.text }}>
+        <Text style={{ color: colors.textMuted, fontSize: '13px', margin: '6px 0 0' }}>
+          Lettre du moment :{' '}
+          <span style={{ fontFamily: 'serif', fontSize: '20px', color: colors.text }}>
             {child.topLetter}
           </span>
         </Text>
@@ -79,15 +118,48 @@ function ChildStatsCard({ child }: { child: ChildWeeklyStats }) {
   )
 }
 
-function StatBadge({
-  label,
-  value,
-  emoji,
-}: {
-  label: string
-  value: number
-  emoji: string
-}) {
+/** Carte rappel doux pour un enfant inactif cette semaine */
+function InactiveChildCard({ child }: { child: ChildWeeklyStats }) {
+  return (
+    <div
+      style={{
+        backgroundColor: '#fefce8',
+        borderRadius: '12px',
+        padding: '20px 24px',
+        margin: '0 0 16px',
+        border: '1px dashed #fbbf24',
+      }}
+    >
+      <Text
+        style={{
+          color: colors.text,
+          fontSize: '17px',
+          fontWeight: 'bold',
+          margin: '0 0 4px',
+        }}
+      >
+        {child.prenom} 💤
+      </Text>
+
+      <Text style={{ color: colors.textMuted, fontSize: '14px', margin: '0 0 12px', lineHeight: '1.5' }}>
+        {child.prenom} n&apos;a pas pratiqué cette semaine. 5 minutes par jour suffisent
+        pour progresser régulièrement !
+      </Text>
+
+      {child.lettersMasteredTotal > 0 && (
+        <>
+          <ProgressBar mastered={child.lettersMasteredTotal} />
+          <Text style={{ color: colors.textMuted, fontSize: '12px', margin: '6px 0 0' }}>
+            {child.lettersMasteredTotal} lettre{child.lettersMasteredTotal > 1 ? 's' : ''} déjà
+            acquises — la progression est conservée 📖
+          </Text>
+        </>
+      )}
+    </div>
+  )
+}
+
+function StatBadge({ label, value, emoji }: { label: string; value: number; emoji: string }) {
   return (
     <div
       style={{
@@ -117,12 +189,18 @@ function StatBadge({
 
 export function WeeklyProgressEmail({ parentPrenom, children }: WeeklyProgressEmailProps) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://nouralapp.fr'
-  const totalLetters = children.reduce((sum, c) => sum + c.lettersSeenThisWeek, 0)
+
+  const activeChildren = children.filter((c) => c.isActive)
+  const totalLetters = activeChildren.reduce((sum, c) => sum + c.lettersSeenThisWeek, 0)
+  const hasActive = activeChildren.length > 0
+
+  /* Preview text différent du sujet dynamique */
+  const previewText = hasActive
+    ? `${totalLetters} lettre${totalLetters > 1 ? 's' : ''} pratiquées au total — félicitations !`
+    : `5 minutes par jour suffisent — reprenez dès maintenant !`
 
   return (
-    <EmailLayout
-      previewText={`Résumé de la semaine : ${totalLetters} lettres apprises ! Continuez comme ça.`}
-    >
+    <EmailLayout previewText={previewText}>
       <Heading
         style={{
           color: colors.text,
@@ -131,18 +209,40 @@ export function WeeklyProgressEmail({ parentPrenom, children }: WeeklyProgressEm
           margin: '0 0 8px',
         }}
       >
-        ⭐ Résumé de la semaine
+        {hasActive ? '⭐ Résumé de la semaine' : '🌙 Des nouvelles de NourAl'}
       </Heading>
 
       <Text style={{ color: colors.textMuted, fontSize: '14px', margin: '0 0 24px' }}>
-        Voici les progrès de vos enfants cette semaine, {parentPrenom}.
+        Bonjour {parentPrenom},{' '}
+        {hasActive
+          ? 'voici les progrès de vos enfants cette semaine.'
+          : 'quelques nouvelles de vos enfants.'}
       </Text>
 
-      {children.map((child, i) => (
-        <ChildStatsCard key={i} child={child} />
-      ))}
+      {/* Carte par enfant selon son activité */}
+      {children.map((child, i) =>
+        child.isActive ? (
+          <ActiveChildCard key={i} child={child} />
+        ) : (
+          <InactiveChildCard key={i} child={child} />
+        )
+      )}
 
       <Hr style={{ borderColor: '#e5e7eb', margin: '24px 0' }} />
+
+      {hasActive && (
+        <Text
+          style={{
+            color: colors.text,
+            fontSize: '15px',
+            fontWeight: 'bold',
+            margin: '0 0 16px',
+            textAlign: 'center' as const,
+          }}
+        >
+          Continuez comme ça — la régularité fait la maîtrise ! 🌟
+        </Text>
+      )}
 
       <Button
         href={`${appUrl}/dashboard`}
@@ -157,7 +257,7 @@ export function WeeklyProgressEmail({ parentPrenom, children }: WeeklyProgressEm
           display: 'inline-block',
         }}
       >
-        Voir le tableau de bord →
+        Voir la progression complète →
       </Button>
     </EmailLayout>
   )

@@ -1,10 +1,11 @@
-import { Button, Heading, Text } from '@react-email/components'
+import { Button, Heading, Hr, Text } from '@react-email/components'
 import * as React from 'react'
 import { EmailLayout } from './components/EmailLayout'
 
 const colors = {
   accent: '#F5A623',
   vert: '#27AE60',
+  turquoise: '#00C9B1',
   text: '#1c1917',
   textMuted: '#78716c',
 }
@@ -12,9 +13,24 @@ const colors = {
 interface SubscriptionConfirmedEmailProps {
   parentPrenom: string
   child: { prenom: string; avatar: string }
+  /** Montant en centimes (ex : 200 pour 2€) */
   amount: number
   renewalDate: Date
 }
+
+const FEATURES_DEBLOQUEES = [
+  'Alphabet complet avec tracé animé',
+  'Syllabes et mots du vocabulaire coranique',
+  "Sourates illustrées avec aide à la récitation",
+  'Répétition espacée intelligente (mémorisation durable)',
+  'Statistiques détaillées et suivi par niveau',
+]
+
+const SUGGESTIONS_DEMARRAGE = [
+  { emoji: '🔤', titre: "L'alphabet arabe", detail: 'Commencez par les lettres isolées.' },
+  { emoji: '📖', titre: 'Al-Fatiha', detail: 'La sourate la plus mémorisée, étape par étape.' },
+  { emoji: '🎮', titre: 'Mini-jeux', detail: 'Mémoriser en jouant — sans écran passif.' },
+]
 
 export function SubscriptionConfirmedEmail({
   parentPrenom,
@@ -34,8 +50,9 @@ export function SubscriptionConfirmedEmail({
   })
 
   return (
+    /* Objet : "Abonnement activé ! [Prénom] a accès à tout NourAl 🎉" */
     <EmailLayout
-      previewText={`Abonnement activé pour ${child.prenom}. Prochain renouvellement : ${formattedDate}.`}
+      previewText={`Tout est débloqué pour ${child.prenom}. Découvrez par où commencer !`}
     >
       <Heading
         style={{
@@ -48,13 +65,9 @@ export function SubscriptionConfirmedEmail({
         🎉 Abonnement activé !
       </Heading>
 
-      <Text style={{ color: colors.text, fontSize: '16px', lineHeight: '1.6', margin: '0 0 16px' }}>
-        Bonjour {parentPrenom},
-      </Text>
-
       <Text style={{ color: colors.text, fontSize: '16px', lineHeight: '1.6', margin: '0 0 24px' }}>
-        L&apos;abonnement de <strong>{child.prenom}</strong> est maintenant actif. Tout est
-        prêt pour commencer l&apos;apprentissage ! ✨
+        Bonjour {parentPrenom}, l&apos;abonnement de <strong>{child.prenom}</strong> est
+        maintenant actif. Tout NourAl lui est ouvert ! ✨
       </Text>
 
       {/* Récapitulatif abonnement */}
@@ -70,9 +83,9 @@ export function SubscriptionConfirmedEmail({
         <Text
           style={{
             color: colors.vert,
-            fontSize: '14px',
+            fontSize: '13px',
             fontWeight: 'bold',
-            margin: '0 0 8px',
+            margin: '0 0 10px',
             textTransform: 'uppercase' as const,
             letterSpacing: '0.5px',
           }}
@@ -90,6 +103,66 @@ export function SubscriptionConfirmedEmail({
         </Text>
       </div>
 
+      {/* Features débloquées */}
+      <Text
+        style={{
+          color: colors.text,
+          fontSize: '15px',
+          fontWeight: 'bold',
+          margin: '0 0 12px',
+        }}
+      >
+        ✨ Ce qui est débloqué pour {child.prenom} :
+      </Text>
+
+      {FEATURES_DEBLOQUEES.map((feature, i) => (
+        <Text
+          key={i}
+          style={{
+            color: colors.text,
+            fontSize: '14px',
+            margin: '0 0 8px',
+            lineHeight: '1.5',
+          }}
+        >
+          ✨ {feature}
+        </Text>
+      ))}
+
+      <Hr style={{ borderColor: '#e5e7eb', margin: '24px 0' }} />
+
+      {/* Par où commencer ? */}
+      <Text
+        style={{
+          color: colors.text,
+          fontSize: '15px',
+          fontWeight: 'bold',
+          margin: '0 0 12px',
+        }}
+      >
+        Par où commencer ?
+      </Text>
+
+      {SUGGESTIONS_DEMARRAGE.map((s, i) => (
+        <div
+          key={i}
+          style={{
+            padding: '12px 16px',
+            backgroundColor: '#f8fafc',
+            borderRadius: '10px',
+            margin: '0 0 8px',
+            borderLeft: `3px solid ${colors.turquoise}`,
+          }}
+        >
+          <Text style={{ color: colors.text, fontSize: '14px', fontWeight: 'bold', margin: '0 0 2px' }}>
+            {s.emoji} {s.titre}
+          </Text>
+          <Text style={{ color: colors.textMuted, fontSize: '13px', margin: 0 }}>{s.detail}</Text>
+        </div>
+      ))}
+
+      <Hr style={{ borderColor: '#e5e7eb', margin: '24px 0' }} />
+
       <Button
         href={`${appUrl}/dashboard`}
         style={{
@@ -106,15 +179,17 @@ export function SubscriptionConfirmedEmail({
         Commencer à apprendre →
       </Button>
 
+      {/* Note résiliation */}
       <Text
         style={{
           color: colors.textMuted,
-          fontSize: '13px',
-          margin: '24px 0 0',
+          fontSize: '12px',
+          margin: '20px 0 0',
           lineHeight: '1.5',
+          textAlign: 'center' as const,
         }}
       >
-        Vous pouvez gérer votre abonnement à tout moment depuis votre espace personnel.
+        Résiliable en 1 clic depuis votre espace parent — sans engagement, sans pénalité.
       </Text>
     </EmailLayout>
   )

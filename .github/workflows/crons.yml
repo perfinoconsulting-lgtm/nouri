@@ -1,0 +1,58 @@
+name: Cron Jobs NourAl
+
+on:
+  schedule:
+    # Résumé hebdomadaire — chaque lundi à 9h UTC (10h ou 11h heure française)
+    - cron: "0 9 * * 1"
+    # Vérification milestones — tous les jours à 18h UTC (19h ou 20h heure française)
+    - cron: "0 18 * * *"
+  # Permet de lancer manuellement depuis l'onglet Actions de GitHub (pour tester)
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "Job à lancer manuellement"
+        required: true
+        default: "weekly-email"
+        type: choice
+        options:
+          - weekly-email
+          - milestone-check
+
+jobs:
+  weekly-email:
+    name: Résumé hebdomadaire
+    runs-on: ubuntu-latest
+    # Ne s'exécute que le lundi à 9h, ou manuellement si job=weekly-email
+    if: |
+      github.event.schedule == '0 9 * * 1' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'weekly-email')
+    steps:
+      - name: Appel API weekly-email
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET "${{ secrets.APP_URL }}/api/cron/weekly-email" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+          echo "HTTP status: $response"
+          if [ "$response" != "200" ]; then
+            echo "Erreur : status $response"
+            exit 1
+          fi
+
+  milestone-check:
+    name: Vérification milestones
+    runs-on: ubuntu-latest
+    # S'exécute tous les jours à 18h, ou manuellement si job=milestone-check
+    if: |
+      github.event.schedule == '0 18 * * *' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'milestone-check')
+    steps:
+      - name: Appel API milestone-check
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET "${{ secrets.APP_URL }}/api/cron/milestone-check" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+          echo "HTTP status: $response"
+          if [ "$response" != "200" ]; then
+            echo "Erreur : status $response"
+            exit 1
+          fi

@@ -15,6 +15,11 @@ import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import {
+  sendSubscriptionConfirmedEmail,
+  sendPaymentFailedEmail,
+  sendSubscriptionCancelledEmail,
+} from '@/lib/email-service'
 
 // Client Supabase avec la clé service (contourne la RLS pour les webhooks serveur)
 function getSupabaseAdmin() {
@@ -108,6 +113,23 @@ export async function POST(request: Request) {
           console.error('❌ Erreur Supabase création abonnement :', error)
         } else {
           console.log(JSON.stringify({ event: 'subscription_created', childId }))
+
+          // Envoyer l'email de confirmation d'abonnement
+          const [{ data: parentData }, { data: childData }] = await Promise.all([
+            supabase.from('parents').select('email, prenom').eq('id', parentId).single(),
+            supabase.from('children').select('prenom, avatar').eq('id', childId).single(),
+          ])
+
+          if (parentData && childData) {
+            const amount = typeof session.amount_total === 'number' ? session.amount_total : 200
+            const renewalDate = currentPeriodEnd ? new Date(currentPeriodEnd) : new Date()
+            sendSubscriptionConfirmedEmail(
+              { email: parentData.email, prenom: parentData.prenom ?? '' },
+              { prenom: childData.prenom, avatar: childData.avatar ?? '' },
+              amount,
+              renewalDate,
+            )
+          }
         }
         break
       }
@@ -148,6 +170,32 @@ export async function POST(request: Request) {
         if (error) {
           console.error("❌ Erreur Supabase annulation abonnement :", error)
         }
+
+        // Envoyer l'email de résiliation — même si la mise à jour DB a échoué
+        // car Stripe a confirmé l'annulation
+        const { data: subData } = await supabase
+          .from('subscriptions')
+          .select('parent_id, child_id, current_period_end')
+          .eq('stripe_subscription_id', subscription.id)
+          .single()
+
+        if (subData) {
+          const [{ data: parentData }, { data: childData }] = await Promise.all([
+            supabase.from('parents').select('email, prenom').eq('id', subData.parent_id).single(),
+            supabase.from('children').select('prenom, avatar').eq('id', subData.child_id).single(),
+          ])
+
+          if (parentData && childData) {
+            const endDate = subData.current_period_end
+              ? new Date(subData.current_period_end as string)
+              : new Date()
+            sendSubscriptionCancelledEmail(
+              { email: parentData.email, prenom: parentData.prenom ?? '' },
+              { prenom: childData.prenom, avatar: childData.avatar ?? '' },
+              endDate,
+            )
+          }
+        }
         break
       }
 
@@ -174,6 +222,37 @@ export async function POST(request: Request) {
               ? String((invRaw.last_finalization_error as Record<string, unknown>).message ?? 'inconnu')
               : 'inconnu'
           console.log(JSON.stringify({ event: 'payment_failed', amount, reason }))
+
+          // Envoyer l'email d'échec de paiement avec le nombre de jours restants
+          const { data: subData } = await supabase
+            .from('subscriptions')
+            .select('parent_id, child_id, current_period_end')
+            .eq('stripe_customer_id', customerId)
+            .single()
+
+          if (subData) {
+            const [{ data: parentData }, { data: childData }] = await Promise.all([
+              supabase.from('parents').select('email, prenom').eq('id', subData.parent_id).single(),
+              supabase.from('children').select('prenom, avatar').eq('id', subData.child_id).single(),
+            ])
+
+            if (parentData && childData) {
+              const daysRemaining = subData.current_period_end
+                ? Math.max(
+                    0,
+                    Math.round(
+                      (new Date(subData.current_period_end as string).getTime() - Date.now()) /
+                        (1000 * 60 * 60 * 24)
+                    )
+                  )
+                : 0
+              sendPaymentFailedEmail(
+                { email: parentData.email, prenom: parentData.prenom ?? '' },
+                { prenom: childData.prenom, avatar: childData.avatar ?? '' },
+                daysRemaining,
+              )
+            }
+          }
         }
         break
       }

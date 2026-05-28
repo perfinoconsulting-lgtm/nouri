@@ -1,4 +1,4 @@
-import { Button, Heading, Text } from '@react-email/components'
+import { Button, Heading, Link, Text } from '@react-email/components'
 import * as React from 'react'
 import { EmailLayout } from './components/EmailLayout'
 
@@ -12,14 +12,25 @@ const colors = {
 interface PaymentFailedEmailProps {
   parentPrenom: string
   child: { prenom: string; avatar: string }
+  /** Nombre de jours d'accès restants avant suspension (grâce Stripe) */
+  daysRemaining: number
 }
 
-export function PaymentFailedEmail({ parentPrenom, child }: PaymentFailedEmailProps) {
+export function PaymentFailedEmail({ parentPrenom, child, daysRemaining }: PaymentFailedEmailProps) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://nouralapp.fr'
 
+  /* Libellé durée restante */
+  const accessLabel =
+    daysRemaining <= 0
+      ? "L'accès a été suspendu."
+      : daysRemaining === 1
+        ? "Il reste 1 jour d'accès à " + child.prenom + '.'
+        : `Il reste ${daysRemaining} jours d'accès à ${child.prenom}.`
+
   return (
+    /* Objet : "⚠️ Problème de paiement — Action requise" */
     <EmailLayout
-      previewText={`Action requise : problème de paiement pour ${child.prenom}. Mettez à jour votre moyen de paiement.`}
+      previewText={`${accessLabel} Mettez à jour votre moyen de paiement pour continuer.`}
     >
       <Heading
         style={{
@@ -42,6 +53,29 @@ export function PaymentFailedEmail({ parentPrenom, child }: PaymentFailedEmailPr
         moyen de paiement.
       </Text>
 
+      {/* Durée d'accès restant */}
+      <div
+        style={{
+          backgroundColor: daysRemaining <= 3 ? '#fff5f5' : '#fffbeb',
+          borderRadius: '12px',
+          padding: '16px 20px',
+          margin: '0 0 20px',
+          borderLeft: `4px solid ${daysRemaining <= 3 ? colors.rouge : colors.accent}`,
+        }}
+      >
+        <Text
+          style={{
+            color: daysRemaining <= 3 ? colors.rouge : colors.accent,
+            fontSize: '15px',
+            fontWeight: 'bold',
+            margin: 0,
+          }}
+        >
+          ⏳ {accessLabel}
+        </Text>
+      </div>
+
+      {/* Ce qui se passe sans action */}
       <div
         style={{
           backgroundColor: '#fff5f5',
@@ -51,12 +85,27 @@ export function PaymentFailedEmail({ parentPrenom, child }: PaymentFailedEmailPr
           borderLeft: `4px solid ${colors.rouge}`,
         }}
       >
-        <Text style={{ color: colors.rouge, fontSize: '15px', fontWeight: 'bold', margin: '0 0 8px' }}>
+        <Text
+          style={{
+            color: colors.rouge,
+            fontSize: '14px',
+            fontWeight: 'bold',
+            margin: '0 0 8px',
+          }}
+        >
           Que se passe-t-il si je ne fais rien ?
         </Text>
-        <Text style={{ color: colors.text, fontSize: '14px', lineHeight: '1.6', margin: 0 }}>
-          Nous effectuerons 3 nouvelles tentatives automatiques. Si le paiement reste en
-          échec, l&apos;accès de {child.prenom} sera suspendu. Toute progression est conservée.
+        <Text
+          style={{
+            color: colors.text,
+            fontSize: '14px',
+            lineHeight: '1.6',
+            margin: 0,
+          }}
+        >
+          Stripe effectuera 3 nouvelles tentatives automatiques. Si le paiement reste en
+          échec, l&apos;accès de {child.prenom} sera suspendu.{' '}
+          <strong>Toute progression est conservée</strong> et reprend dès la régularisation.
         </Text>
       </div>
 
@@ -76,16 +125,23 @@ export function PaymentFailedEmail({ parentPrenom, child }: PaymentFailedEmailPr
         Mettre à jour mon paiement →
       </Button>
 
+      {/* Coordonnées support */}
       <Text
         style={{
           color: colors.textMuted,
           fontSize: '13px',
           margin: '24px 0 0',
-          lineHeight: '1.5',
+          lineHeight: '1.6',
         }}
       >
-        Si vous avez des questions, répondez directement à cet email. Notre équipe vous
-        aidera dans les meilleurs délais.
+        Des questions ? Contactez notre support :{' '}
+        <Link
+          href="mailto:support@nouralapp.fr"
+          style={{ color: colors.accent, textDecoration: 'underline' }}
+        >
+          support@nouralapp.fr
+        </Link>
+        {' '}— nous répondons sous 24h.
       </Text>
     </EmailLayout>
   )

@@ -1,4 +1,4 @@
-import { Button, Heading, Text } from '@react-email/components'
+import { Button, Heading, Link, Text } from '@react-email/components'
 import * as React from 'react'
 import { EmailLayout } from './components/EmailLayout'
 
@@ -20,43 +20,62 @@ export type MilestoneType =
 
 const MILESTONE_CONFIG: Record<
   MilestoneType,
-  { emoji: string; title: string; description: string }
+  { emoji: string; title: string; description: string; whatsappMessage: string }
 > = {
   '5_letters': {
     emoji: '⭐',
-    title: 'a appris 5 lettres !',
+    title: 'a appris 5 lettres arabes !',
     description: 'Le voyage commence ! Les 5 premières lettres arabes sont maîtrisées.',
+    whatsappMessage: 'Ma fille/mon fils vient d\'apprendre ses 5 premières lettres arabes grâce à NourAl ! 🌙⭐',
   },
   '10_letters': {
     emoji: '🌟',
-    title: 'connaît 10 lettres !',
-    description: 'À mi-chemin de l\'alphabet ! Une belle progression.',
+    title: 'connaît 10 lettres arabes !',
+    description: "À mi-chemin de l'alphabet ! Une belle progression semaine après semaine.",
+    whatsappMessage: 'Ma fille/mon fils connaît maintenant 10 lettres arabes ! 🌙🌟 #NourAl',
   },
   '20_letters': {
     emoji: '🏆',
-    title: 'maîtrise 20 lettres !',
-    description: 'Presque tout l\'alphabet ! Encore 8 lettres et c\'est terminé.',
+    title: 'maîtrise 20 lettres arabes !',
+    description: "Presque tout l'alphabet ! Encore 8 lettres et c'est terminé. Quelle progression !",
+    whatsappMessage: 'Ma fille/mon fils maîtrise 20 lettres arabes sur 28 ! 🏆 #NourAl',
   },
   '28_letters': {
     emoji: '🎓',
     title: 'connaît tout l\'alphabet arabe !',
-    description: 'L\'alphabet complet est maîtrisé. Une étape immense franchie !',
+    description:
+      "L'alphabet complet est maîtrisé — toutes les 28 lettres ! Une étape immense franchie.",
+    whatsappMessage:
+      'Ma fille/mon fils connaît TOUT l\'alphabet arabe ! 🎓🌙 بِسْمِ اللَّهِ — grâce à NourAl !',
   },
   first_sourate: {
     emoji: '📖',
     title: 'a lu sa première sourate !',
-    description: 'Al-Fatiha récitée ! Un moment béni pour toute la famille.',
+    description: 'Al-Fatiha récitée ! Un moment béni pour toute la famille. ما شاء الله',
+    whatsappMessage:
+      'Ma fille/mon fils a lu Al-Fatiha pour la première fois ! 📖🌙 ما شاء الله #NourAl',
   },
   streak_7: {
     emoji: '🔥',
     title: 'apprend depuis 7 jours de suite !',
-    description: '7 jours consécutifs d\'apprentissage. La régularité fait la maîtrise.',
+    description: '7 jours consécutifs d\'apprentissage. La régularité fait la maîtrise — bravo !',
+    whatsappMessage:
+      'Ma fille/mon fils apprend l\'arabe chaque jour depuis 7 jours de suite ! 🔥🌙 #NourAl',
   },
   level_up: {
     emoji: '🚀',
-    title: 'a changé de niveau !',
-    description: 'Un nouveau niveau atteint. Les défis s\'adaptent à sa progression.',
+    title: 'est passé au niveau supérieur !',
+    description:
+      'Un nouveau niveau atteint. Les exercices s\'adaptent maintenant à sa progression.',
+    whatsappMessage:
+      'Ma fille/mon fils vient de changer de niveau sur NourAl ! 🚀🌙 Fier(e) de lui/elle !',
   },
+}
+
+/** Génère l'objet de l'email selon le milestone — à utiliser côté service d'envoi */
+export function getMilestoneSubject(childPrenom: string, milestone: MilestoneType): string {
+  const config = MILESTONE_CONFIG[milestone]
+  return `${config.emoji} ${childPrenom} ${config.title}`
 }
 
 interface MilestoneEmailProps {
@@ -69,42 +88,56 @@ export function MilestoneEmail({ parentPrenom, child, milestone }: MilestoneEmai
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://nouralapp.fr'
   const config = MILESTONE_CONFIG[milestone]
 
+  /* Message WhatsApp encodé URL */
+  const waMessage = encodeURIComponent(
+    config.whatsappMessage.replace("Ma fille/mon fils", child.prenom)
+  )
+  const waUrl = `https://wa.me/?text=${waMessage}`
+
   return (
-    <EmailLayout
-      previewText={`${child.prenom} ${config.title} Félicitez-le !`}
-    >
+    /* Objet dynamique via getMilestoneSubject() */
+    <EmailLayout previewText={`Félicitez ${child.prenom} — il/elle vient de franchir une belle étape !`}>
+      {/* Célébration centrale */}
       <div style={{ textAlign: 'center' as const, margin: '0 0 24px' }}>
-        <Text style={{ fontSize: '64px', margin: '0 0 8px' }}>{config.emoji}</Text>
+        <Text style={{ fontSize: '64px', margin: '0 0 8px', lineHeight: '1' }}>
+          {config.emoji}
+        </Text>
         <Heading
           style={{
             color: colors.text,
-            fontSize: '24px',
+            fontSize: '22px',
             fontWeight: 'bold',
             margin: '0 0 8px',
           }}
         >
-          🎓 Félicitations !
+          🎓 Félicitations, {parentPrenom} !
         </Heading>
         <Text
           style={{
             color: colors.turquoise,
-            fontSize: '20px',
+            fontSize: '18px',
             fontWeight: 'bold',
             margin: 0,
+            lineHeight: '1.4',
           }}
         >
           {child.prenom} {config.title}
         </Text>
       </div>
 
-      <Text style={{ color: colors.text, fontSize: '16px', lineHeight: '1.6', margin: '0 0 16px' }}>
-        Bonjour {parentPrenom},
-      </Text>
-
-      <Text style={{ color: colors.text, fontSize: '16px', lineHeight: '1.6', margin: '0 0 24px' }}>
+      <Text
+        style={{
+          color: colors.text,
+          fontSize: '16px',
+          lineHeight: '1.6',
+          margin: '0 0 24px',
+          textAlign: 'center' as const,
+        }}
+      >
         {config.description}
       </Text>
 
+      {/* Encart félicitation */}
       <div
         style={{
           backgroundColor: '#fffbeb',
@@ -118,15 +151,16 @@ export function MilestoneEmail({ parentPrenom, child, milestone }: MilestoneEmai
         <Text
           style={{
             color: colors.accent,
-            fontSize: '16px',
+            fontSize: '15px',
             fontWeight: 'bold',
             margin: 0,
           }}
         >
-          N&apos;oubliez pas de féliciter {child.prenom} ! 🤗
+          N&apos;oubliez pas de féliciter {child.prenom} en personne ! 🤗
         </Text>
       </div>
 
+      {/* Bouton principal */}
       <Button
         href={`${appUrl}/dashboard`}
         style={{
@@ -138,10 +172,30 @@ export function MilestoneEmail({ parentPrenom, child, milestone }: MilestoneEmai
           fontWeight: 'bold',
           textDecoration: 'none',
           display: 'inline-block',
+          marginBottom: '12px',
         }}
       >
-        Voir les progrès →
+        Voir la progression →
       </Button>
+
+      {/* Bouton partage WhatsApp */}
+      <div style={{ margin: '12px 0 0' }}>
+        <Link
+          href={waUrl}
+          style={{
+            backgroundColor: '#25D366',
+            color: '#ffffff',
+            borderRadius: '8px',
+            padding: '12px 24px',
+            fontSize: '15px',
+            fontWeight: 'bold',
+            textDecoration: 'none',
+            display: 'inline-block',
+          }}
+        >
+          📱 Partager sur WhatsApp
+        </Link>
+      </div>
     </EmailLayout>
   )
 }

@@ -6,7 +6,7 @@ import { WeeklyProgressEmail } from '@/emails/WeeklyProgressEmail'
 import { SubscriptionConfirmedEmail } from '@/emails/SubscriptionConfirmedEmail'
 import { PaymentFailedEmail } from '@/emails/PaymentFailedEmail'
 import { SubscriptionCancelledEmail } from '@/emails/SubscriptionCancelledEmail'
-import { MilestoneEmail } from '@/emails/MilestoneEmail'
+import { MilestoneEmail, getMilestoneSubject } from '@/emails/MilestoneEmail'
 import { PasswordResetEmail } from '@/emails/PasswordResetEmail'
 import type { ChildWeeklyStats } from '@/emails/WeeklyProgressEmail'
 import type { MilestoneType } from '@/emails/MilestoneEmail'
@@ -63,12 +63,23 @@ export function sendWeeklyProgressEmail(
   parent: { email: string; prenom: string },
   children: ChildWeeklyStats[],
 ): void {
-  const totalLetters = children.reduce((sum, c) => sum + c.lettersSeenThisWeek, 0)
+  const activeChildren = children.filter((c) => c.isActive)
+  const totalLetters = activeChildren.reduce((sum, c) => sum + c.lettersSeenThisWeek, 0)
   const firstChild = children[0]
-  const subject =
-    children.length === 1 && firstChild
-      ? `${firstChild.prenom} a appris ${totalLetters} lettres cette semaine ! ⭐`
-      : `Vos enfants ont appris ${totalLetters} lettres cette semaine ! ⭐`
+  const hasActive = activeChildren.length > 0
+
+  /* Sujet dynamique actif / inactif */
+  const subject = (() => {
+    if (!hasActive) {
+      return firstChild
+        ? `${firstChild.prenom} n'a pas pratiqué — 5 min suffisent ! 🌙`
+        : "Vos enfants n'ont pas pratiqué cette semaine 🌙"
+    }
+    if (children.length === 1 && firstChild) {
+      return `${firstChild.prenom} a appris ${totalLetters} lettres cette semaine ! ⭐`
+    }
+    return `Vos enfants ont appris ${totalLetters} lettres cette semaine ! ⭐`
+  })()
 
   void sendEmailSafe({
     to: parent.email,
@@ -103,11 +114,16 @@ export function sendSubscriptionConfirmedEmail(
 export function sendPaymentFailedEmail(
   parent: { email: string; prenom: string },
   child: { prenom: string; avatar: string },
+  daysRemaining: number,
 ): void {
   void sendEmailSafe({
     to: parent.email,
-    subject: '⚠️ Problème de paiement',
-    react: React.createElement(PaymentFailedEmail, { parentPrenom: parent.prenom, child }),
+    subject: '⚠️ Problème de paiement — Action requise',
+    react: React.createElement(PaymentFailedEmail, {
+      parentPrenom: parent.prenom,
+      child,
+      daysRemaining,
+    }),
     type: 'payment_failed',
   })
 }
@@ -134,19 +150,9 @@ export function sendMilestoneEmail(
   child: { prenom: string; avatar: string },
   milestone: MilestoneType,
 ): void {
-  const milestoneLabels: Record<MilestoneType, string> = {
-    '5_letters': `${child.prenom} a appris 5 lettres !`,
-    '10_letters': `${child.prenom} connaît 10 lettres !`,
-    '20_letters': `${child.prenom} maîtrise 20 lettres !`,
-    '28_letters': `🎓 ${child.prenom} connaît tout l'alphabet !`,
-    first_sourate: `📖 ${child.prenom} a lu sa première sourate !`,
-    streak_7: `🔥 ${child.prenom} apprend depuis 7 jours de suite !`,
-    level_up: `🚀 ${child.prenom} a changé de niveau !`,
-  }
-
   void sendEmailSafe({
     to: parent.email,
-    subject: milestoneLabels[milestone],
+    subject: getMilestoneSubject(child.prenom, milestone),
     react: React.createElement(MilestoneEmail, {
       parentPrenom: parent.prenom,
       child,
