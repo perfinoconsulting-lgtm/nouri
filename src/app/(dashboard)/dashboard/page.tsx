@@ -51,7 +51,7 @@ function calculateStreak(startedAts: string[]): number {
 }
 
 export default async function DashboardPage() {
-  const supabase = createServerSupabaseClient()
+  const supabase = await createServerSupabaseClient()
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) return null
 

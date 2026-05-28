@@ -12,7 +12,7 @@ export async function createOrGetCustomer(
   email: string,
   prenom: string | null
 ): Promise<Stripe.Customer> {
-  const supabase = createServerSupabaseClient()
+  const supabase = await createServerSupabaseClient()
 
   const { data: parent, error: fetchError } = await supabase
     .from('parents')
@@ -110,7 +110,7 @@ export interface SubscriptionStatus {
 // Lit la table `subscriptions` Supabase et enrichit avec cancelAtPeriodEnd
 // depuis Stripe si l'abonnement est actif ou en essai.
 export async function getSubscriptionStatus(childId: string): Promise<SubscriptionStatus> {
-  const supabase = createServerSupabaseClient()
+  const supabase = await createServerSupabaseClient()
 
   const { data, error } = await supabase
     .from('subscriptions')

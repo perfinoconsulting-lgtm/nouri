@@ -11,7 +11,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 // POST : Sauvegarder un tracé
 export async function POST(req: Request) {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
 
     // 1. Authentification
     const { data: { session } } = await supabase.auth.getSession()
@@ -110,7 +110,7 @@ export async function POST(req: Request) {
 // GET : Lister les tracés existants (max 3, du plus récent au plus ancien)
 export async function GET(req: Request) {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
 
     // 1. Authentification
     const { data: { session } } = await supabase.auth.getSession()

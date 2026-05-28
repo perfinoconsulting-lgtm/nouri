@@ -51,9 +51,10 @@ const PREMIUM_FEATURES = [
 export default async function AbonnementPage({
   searchParams,
 }: {
-  searchParams: { success?: string }
+  searchParams: Promise<{ success?: string }>
 }) {
-  const supabase = createServerSupabaseClient()
+  const { success } = await searchParams
+  const supabase = await createServerSupabaseClient()
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) redirect('/connexion')
 
@@ -68,7 +69,7 @@ export default async function AbonnementPage({
     .select('child_id, status, current_period_end')
     .eq('parent_id', session.user.id)
 
-  const isSuccess = searchParams.success === 'true'
+  const isSuccess = success === 'true'
   const childrenList = (children as Child[]) ?? []
   const subList = (subscriptions as Subscription[]) ?? []
 

@@ -4,7 +4,7 @@ import { createOrGetCustomer, createCheckoutSession } from '@/lib/stripe'
 
 export async function POST(req: Request) {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
     const {
       data: { session },
     } = await supabase.auth.getSession()

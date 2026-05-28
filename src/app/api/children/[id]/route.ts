@@ -53,10 +53,11 @@ function calculateStreak(startedAts: string[]): number {
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerSupabaseClient()
+    const { id } = await params
+    const supabase = await createServerSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return NextResponse.json({ error: 'Non authentifié.' }, { status: 401 })
 
@@ -64,7 +65,7 @@ export async function GET(
     const { data: child, error: childError } = await supabase
       .from('children')
       .select('id, parent_id, prenom, age, avatar, niveau, created_at, last_active')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('parent_id', session.user.id)
       .single()
 
@@ -77,16 +78,16 @@ export async function GET(
       supabase
         .from('progress')
         .select('score')
-        .eq('child_id', params.id),
+        .eq('child_id', id),
       supabase
         .from('sessions')
         .select('id, started_at, ended_at, duration_seconds, module_slug, items_reviewed, correct_answers')
-        .eq('child_id', params.id)
+        .eq('child_id', id)
         .order('started_at', { ascending: false }),
       supabase
         .from('subscriptions')
         .select('status, current_period_end, cancel_at_period_end')
-        .eq('child_id', params.id)
+        .eq('child_id', id)
         .maybeSingle(),
     ])
 
@@ -162,10 +163,11 @@ export async function GET(
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerSupabaseClient()
+    const { id } = await params
+    const supabase = await createServerSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return NextResponse.json({ error: 'Non authentifié.' }, { status: 401 })
 
@@ -183,7 +185,7 @@ export async function PUT(
     const { data: updated, error: updateError } = await supabase
       .from('children')
       .update(parsed.data)
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('parent_id', session.user.id)
       .select()
       .single()
@@ -204,10 +206,11 @@ export async function PUT(
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerSupabaseClient()
+    const { id } = await params
+    const supabase = await createServerSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return NextResponse.json({ error: 'Non authentifié.' }, { status: 401 })
 
@@ -215,7 +218,7 @@ export async function DELETE(
     const { error: deleteError, count } = await supabase
       .from('children')
       .delete({ count: 'exact' })
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('parent_id', session.user.id)
 
     if (deleteError) {

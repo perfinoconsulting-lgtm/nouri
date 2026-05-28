@@ -9,10 +9,11 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerSupabaseClient()
+    const { id } = await params
+    const supabase = await createServerSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return NextResponse.json({ error: 'Non authentifie.' }, { status: 401 })
 
@@ -20,7 +21,7 @@ export async function GET(
     const { data: child, error: ownerError } = await supabase
       .from('children')
       .select('id')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('parent_id', session.user.id)
       .single()
 
@@ -35,7 +36,7 @@ export async function GET(
     const { data: sessionsData, error } = await supabase
       .from('sessions')
       .select('started_at, duration_seconds, correct_answers, items_reviewed')
-      .eq('child_id', params.id)
+      .eq('child_id', id)
       .gte('started_at', since.toISOString())
       .order('started_at', { ascending: true })
 

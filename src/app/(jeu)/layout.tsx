@@ -13,12 +13,12 @@ const baloo2 = Baloo_2({
 
 export default async function JeuLayout({ children }: { children: React.ReactNode }) {
   // Vérification auth côté serveur
-  const supabase = createServerSupabaseClient()
+  const supabase = await createServerSupabaseClient()
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) redirect('/connexion')
 
   // Extraire le childId depuis le pathname injecté par le middleware
-  const pathname = headers().get('x-pathname') ?? ''
+  const pathname = (await headers()).get('x-pathname') ?? ''
   const childId = pathname.match(/\/jouer\/([^/]+)/)?.[1]
 
   if (!childId) redirect('/dashboard')

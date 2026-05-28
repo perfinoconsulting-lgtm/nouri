@@ -58,7 +58,7 @@ function calculateStreak(startedAts: string[]): number {
 
 export async function POST(req: Request) {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
 
     // 1. Authentification
     const {

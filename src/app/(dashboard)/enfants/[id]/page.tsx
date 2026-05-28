@@ -56,11 +56,12 @@ function formatDateFr(dateStr: string): string {
 }
 
 interface PageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default async function ChildDetailPage({ params }: PageProps) {
-  const supabase = createServerSupabaseClient()
+  const { id } = await params
+  const supabase = await createServerSupabaseClient()
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) redirect('/connexion')
 
@@ -68,7 +69,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
   const { data: childRaw } = await supabase
     .from('children')
     .select('id, parent_id, prenom, age, avatar, niveau, created_at, last_active')
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('parent_id', session.user.id)
     .single()
 
@@ -78,17 +79,17 @@ export default async function ChildDetailPage({ params }: PageProps) {
     supabase
       .from('progress')
       .select('item_id, score, updated_at')
-      .eq('child_id', params.id),
+      .eq('child_id', id),
     supabase
       .from('sessions')
       .select('id, started_at, ended_at, duration_seconds, module_slug')
-      .eq('child_id', params.id)
+      .eq('child_id', id)
       .order('started_at', { ascending: false })
       .limit(20),
     supabase
       .from('subscriptions')
       .select('status, current_period_end, cancel_at_period_end')
-      .eq('child_id', params.id)
+      .eq('child_id', id)
       .single(),
   ])
 

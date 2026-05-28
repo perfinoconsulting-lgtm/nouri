@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import type { ChildWithStats, SessionData } from '@/types/dashboard'
 
 interface ReviewStats {
@@ -23,7 +24,8 @@ const NOM_MODULES: Record<string, string> = {
   sourates: 'Les Sourates',
 }
 
-export default function JoueurPage({ params }: { params: { childId: string } }) {
+export default function JoueurPage() {
+  const params = useParams<{ childId: string }>()
   const [data, setData] = useState<PageData | null>(null)
   const [chargement, setChargement] = useState(true)
 

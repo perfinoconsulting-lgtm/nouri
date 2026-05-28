@@ -4,7 +4,7 @@ import { createPortalSession } from '@/lib/stripe'
 
 export async function POST() {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
     const {
       data: { session },
     } = await supabase.auth.getSession()

@@ -1,4 +1,9 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  poweredByHeader: false,
+  experimental: {
+    webpackMemoryOptimizations: true,
+  },
+}
 
-export default nextConfig;
+export default nextConfig

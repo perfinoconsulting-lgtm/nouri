@@ -10,10 +10,10 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
 
     // 1. Vérification de l'authentification
     const { data: { session } } = await supabase.auth.getSession()
@@ -22,7 +22,7 @@ export async function GET(
     }
 
     const parentId = session.user.id
-    const childId = params.id
+    const { id: childId } = await params
 
     // 2. Vérification de la sécurité : l'enfant appartient bien au parent
     const { data: child, error: childError } = await supabase

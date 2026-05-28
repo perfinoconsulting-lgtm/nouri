@@ -23,7 +23,7 @@ const endSessionSchema = z.object({
 // POST : démarrer une session
 export async function POST(req: Request) {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
 
     // 1. Authentification
     const { data: { session } } = await supabase.auth.getSession()
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
 // PATCH : terminer une session
 export async function PATCH(req: Request) {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
 
     // 1. Authentification
     const { data: { session } } = await supabase.auth.getSession()
