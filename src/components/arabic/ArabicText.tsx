@@ -17,6 +17,15 @@ const SIZES = {
   '2xl': 'text-9xl',
 } as const
 
+// min-height par taille pour éviter le layout shift au chargement de la font
+const MIN_HEIGHTS: Record<keyof typeof SIZES, string> = {
+  sm:   '2rem',
+  md:   '3rem',
+  lg:   '5rem',
+  xl:   '8rem',
+  '2xl': '14rem',
+}
+
 export function ArabicText({
   text,
   size = 'md',
@@ -40,6 +49,8 @@ export function ArabicText({
         fontFamily: "'Noto Naskh Arabic', serif",
         direction: 'rtl',
         textAlign: 'center',
+        minHeight: MIN_HEIGHTS[size],
+        display: 'inline-block',
         ...(color ? { color } : {}),
       }}
       onClick={onClick}

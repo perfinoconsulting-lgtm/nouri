@@ -11,12 +11,47 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import { AlphabetGrid } from '@/components/game/AlphabetGrid'
 import { LetterDetail } from '@/components/game/LetterDetail'
-import { MiniQCM } from '@/components/game/MiniQCM'
-import WritingCanvas from '@/components/game/WritingCanvas'
 import { RewardSystem } from '@/components/game/RewardSystem'
 import { LETTERS } from '@/lib/data/letters'
+
+// Skeleton affiché pendant le chargement du QCM
+function SkeletonQCM() {
+  return (
+    <div className="w-full flex flex-col gap-4 animate-pulse">
+      <div className="h-32 bg-white/10 rounded-2xl" />
+      <div className="grid grid-cols-2 gap-3">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="h-16 bg-white/10 rounded-2xl" />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// Skeleton affiché pendant le chargement du canvas de tracé
+function SkeletonCanvas() {
+  return (
+    <div className="w-full flex flex-col gap-4 animate-pulse">
+      <div className="aspect-square max-w-sm mx-auto w-full bg-white/10 rounded-2xl" />
+      <div className="h-12 bg-white/10 rounded-2xl" />
+    </div>
+  )
+}
+
+// Chargement différé du QCM (lourd : audio + logique de questions)
+const MiniQCM = dynamic(() => import('@/components/game/MiniQCM').then((m) => ({ default: m.MiniQCM })), {
+  ssr: false,
+  loading: () => <SkeletonQCM />,
+})
+
+// Chargement différé du canvas (lourd : canvas multi-couches + validation de tracé)
+const WritingCanvas = dynamic(() => import('@/components/game/WritingCanvas'), {
+  ssr: false,
+  loading: () => <SkeletonCanvas />,
+})
 
 interface QueuedResponse {
   childId: string
@@ -59,6 +94,15 @@ export default function AlphabetGame() {
   useEffect(() => {
     sessionIdRef.current = sessionId
   }, [sessionId])
+
+  // Préchargement des chunks dynamiques dès l'affichage du détail de lettre
+  // (l'enfant est susceptible de cliquer "Faire le quiz" ou "Écrire" depuis cette vue)
+  useEffect(() => {
+    if (currentView === 'detail') {
+      import('@/components/game/MiniQCM').catch(() => null)
+      import('@/components/game/WritingCanvas').catch(() => null)
+    }
+  }, [currentView])
 
   useEffect(() => {
     sessionStatsRef.current = { correct: sessionStats.correct, wrong: sessionStats.wrong }
