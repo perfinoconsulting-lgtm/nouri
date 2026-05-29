@@ -8,13 +8,14 @@
 import { useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Menu, X, Home, Users, CreditCard, Settings, LogOut } from 'lucide-react'
+import { Menu, X, Home, Users, CreditCard, Settings, LogOut, Gift } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 const NAV_LINKS = [
   { href: '/dashboard',   label: 'Tableau de bord', Icon: Home       },
   { href: '/enfants',     label: 'Mes enfants',      Icon: Users      },
   { href: '/abonnement',  label: 'Abonnement',       Icon: CreditCard },
+  { href: '/parrainage',  label: 'Parrainage',       Icon: Gift       },
   { href: '/parametres',  label: 'Paramètres',       Icon: Settings   },
 ]
 
