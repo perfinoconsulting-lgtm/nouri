@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Navbar from '@/components/ui/Navbar'
+import CookieBanner from '@/components/ui/CookieBanner'
 
 export const metadata: Metadata = {
   title: "NourAl — Apprendre l'arabe en s'amusant | Application pour enfants musulmans",
@@ -35,6 +36,8 @@ export default function PublicLayout({
       <main className="flex-grow">
         {children}
       </main>
+
+      <CookieBanner />
 
       <footer className="bg-[#1A3A5C] text-white py-12 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
