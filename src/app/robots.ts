@@ -2,11 +2,13 @@ import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-      disallow: ['/dashboard/', '/jouer/', '/api/'],
-    },
-    sitemap: 'https://noural.fr/sitemap.xml',
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: ['/dashboard/', '/jouer/', '/api/', '/admin/'],
+      },
+    ],
+    sitemap: 'https://nouralapp.fr/sitemap.xml',
   }
 }
