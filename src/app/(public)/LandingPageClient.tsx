@@ -3,19 +3,12 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { CheckCircle2, Play, Star, BookOpen, Brain, LineChart, Shield, HelpCircle, ChevronRight } from 'lucide-react'
+import { FAQ_ITEMS } from './faq-data'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
 }
-
-export const FAQ_ITEMS = [
-  { q: "À partir de quel âge ?", a: "NourAl est conçu pour les enfants de 4 à 12 ans. L'interface est très visuelle, ne nécessitant pas de savoir lire parfaitement le français au début." },
-  { q: "Faut-il des connaissances préalables en arabe ?", a: "Pas du tout ! L'application reprend les bases depuis zéro avec l'alphabet, étape par étape." },
-  { q: "Comment fonctionne l'abonnement ?", a: "Il coûte 2€ par mois et par profil enfant. Vous pouvez annuler d'un simple clic depuis votre espace parent." },
-  { q: "Mes données sont-elles sécurisées ?", a: "Oui, nous respectons strictement le RGPD. Aucune publicité, aucune revente de données. Les enfants n'ont pas besoin d'adresse email." },
-  { q: "Puis-je résilier à tout moment ?", a: "Oui, c'est sans engagement. L'abonnement s'arrêtera à la fin du mois en cours après résiliation." }
-]
 
 export default function LandingPageClient() {
   return (
@@ -84,7 +77,7 @@ export default function LandingPageClient() {
           </div>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-blue-50 p-8 rounded-3xl border border-blue-100">
-            <h3 className="text-2xl font-bold text-primary mb-4">NourAl a été pensé pour vous. ✨</h3>
+            <h3 className="text-2xl font-bold text-primary mb-4">Lisani a été pensé pour vous. ✨</h3>
             <p className="text-lg text-gray-600">Une méthode douce, amusante, entièrement en français, et accessible à toutes les familles.</p>
           </motion.div>
         </div>
@@ -206,7 +199,7 @@ export default function LandingPageClient() {
       {/* 6. TÉMOIGNAGES */}
       <section className="py-24 bg-white">
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center text-primary mb-16">Ils adorent NourAl</h2>
+          <h2 className="text-4xl font-bold text-center text-primary mb-16">Ils adorent Lisani</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { name: "Sarah", city: "Lyon", text: "Enfin une application en français, jolie et sans pubs ! Mon fils de 5 ans réclame sa leçon tous les soirs." },

@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/dashboard/', '/jouer/', '/api/', '/admin/'],
       },
     ],
-    sitemap: 'https://nouralapp.fr/sitemap.xml',
+    sitemap: 'https://lisani.tech/sitemap.xml',
   }
 }

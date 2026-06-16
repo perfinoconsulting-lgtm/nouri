@@ -90,7 +90,7 @@ export default async function AbonnementPage({
         <div className="flex items-center gap-3 bg-green-50 border border-green-200 text-green-700 p-4 rounded-2xl">
           <span className="text-2xl shrink-0">🎉</span>
           <p className="font-semibold">
-            Abonnement activé ! Votre enfant a accès à tout NourAl !
+            Abonnement activé ! Votre enfant a accès à tout Lisani !
           </p>
         </div>
       )}

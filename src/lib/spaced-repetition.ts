@@ -1,4 +1,4 @@
-// Répétition espacée (algorithme SRS) — cœur du moteur d'apprentissage NourAl
+// Répétition espacée (algorithme SRS) — cœur du moteur d'apprentissage Lisani
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 
 export interface ReviewItem {

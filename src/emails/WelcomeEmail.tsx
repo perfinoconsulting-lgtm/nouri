@@ -40,10 +40,10 @@ const FEATURES_GRATUITES = [
 ]
 
 export function WelcomeEmail({ prenom }: WelcomeEmailProps) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://nouralapp.fr'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://lisani.tech'
 
   return (
-    /* Objet : "Bienvenue sur NourAl 🌙 — Commençons l'aventure !" */
+    /* Objet : "Bienvenue sur Lisani 🌙 — Commençons l'aventure !" */
     <EmailLayout previewText="Votre compte est prêt. Créez le profil de votre enfant pour commencer !">
       <Heading
         style={{
@@ -53,7 +53,7 @@ export function WelcomeEmail({ prenom }: WelcomeEmailProps) {
           margin: '0 0 8px',
         }}
       >
-        Bienvenue sur NourAl, {prenom} ! 🌙
+        Bienvenue sur Lisani, {prenom} ! 🌙
       </Heading>
 
       <Text

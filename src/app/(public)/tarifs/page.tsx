@@ -3,42 +3,42 @@ import Link from 'next/link'
 import { SchemaOrg } from '@/components/seo/SchemaOrg'
 
 export const metadata: Metadata = {
-  title: "Tarifs NourAl | Arabe Premium dès 2€/mois par enfant",
+  title: "Tarifs Lisani | Arabe Premium dès 2€/mois par enfant",
   description: "Syllabes, mots, sourates, dashboard parent. 2€/mois/enfant. 7 jours gratuits. Sans engagement.",
   keywords: ["tarif arabe enfant", "abonnement application arabe", "cours arabe pas cher"],
   openGraph: {
-    title: "Tarifs NourAl — 2€/mois par enfant",
+    title: "Tarifs Lisani — 2€/mois par enfant",
     description: "Alphabet complet, mots illustrés, sourates, suivi parental. Essai 7 jours gratuit, sans engagement.",
-    url: "https://nouralapp.fr/tarifs",
-    siteName: "NourAl",
-    images: [{ url: "/og", width: 1200, height: 630, alt: "Tarifs NourAl" }],
+    url: "https://lisani.tech/tarifs",
+    siteName: "Lisani",
+    images: [{ url: "/og", width: 1200, height: 630, alt: "Tarifs Lisani" }],
     locale: "fr_FR",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tarifs NourAl — 2€/mois par enfant",
+    title: "Tarifs Lisani — 2€/mois par enfant",
     description: "Syllabes, mots, sourates, dashboard parent. Essai 7 jours gratuit.",
     images: ["/og"],
   },
   robots: { index: true, follow: true },
-  alternates: { canonical: "https://nouralapp.fr/tarifs" },
+  alternates: { canonical: "https://lisani.tech/tarifs" },
 }
 
 const productSchema = {
   "@context": "https://schema.org",
   "@type": "Product",
-  "name": "NourAl Premium",
+  "name": "Lisani Premium",
   "description": "Abonnement mensuel pour l'apprentissage de l'arabe. Alphabet complet, mots illustrés, sourates, suivi parental avancé.",
-  "brand": { "@type": "Brand", "name": "NourAl" },
+  "brand": { "@type": "Brand", "name": "Lisani" },
   "offers": {
     "@type": "Offer",
     "price": "2",
     "priceCurrency": "EUR",
     "priceValidUntil": "2026-12-31",
     "availability": "https://schema.org/InStock",
-    "url": "https://nouralapp.fr/tarifs",
-    "seller": { "@type": "Organization", "name": "NourAl" },
+    "url": "https://lisani.tech/tarifs",
+    "seller": { "@type": "Organization", "name": "Lisani" },
   },
   "audience": { "@type": "EducationalAudience", "educationalRole": "student" },
 }
@@ -152,8 +152,8 @@ export default function PricingPage() {
           <div className="mt-12 text-center">
             <p className="text-gray-400 text-sm">
               Des questions ? Écrivez-nous à{' '}
-              <a href="mailto:contact@noural.fr" className="text-[#1A3A5C] font-medium hover:underline">
-                contact@noural.fr
+              <a href="mailto:contact@lisani.tech" className="text-[#1A3A5C] font-medium hover:underline">
+                contact@lisani.tech
               </a>
             </p>
           </div>

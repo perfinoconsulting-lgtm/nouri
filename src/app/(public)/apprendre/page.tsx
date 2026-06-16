@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { AlphabetDisplay } from '@/components/seo/AlphabetDisplay'
 
 export const metadata: Metadata = {
-  title: "Apprendre l'Alphabet Arabe Gratuitement | NourAl",
+  title: "Apprendre l'Alphabet Arabe Gratuitement | Lisani",
   description:
     "Découvrez les 28 lettres arabes avec illustrations, sons et quiz interactifs. Gratuit pour toujours. Parfait pour les enfants de 4 à 12 ans.",
   keywords: [
@@ -14,16 +14,16 @@ export const metadata: Metadata = {
     'apprendre arabe maison',
   ],
   openGraph: {
-    title: "Apprendre l'Alphabet Arabe Gratuitement | NourAl",
+    title: "Apprendre l'Alphabet Arabe Gratuitement | Lisani",
     description:
       'Les 28 lettres arabes avec illustrations et sons. Pour les enfants dès 4 ans.',
-    url: 'https://nouralapp.fr/apprendre',
-    siteName: 'NourAl',
+    url: 'https://lisani.tech/apprendre',
+    siteName: 'Lisani',
     images: [{ url: '/og', width: 1200, height: 630 }],
     locale: 'fr_FR',
     type: 'website',
   },
-  alternates: { canonical: 'https://nouralapp.fr/apprendre' },
+  alternates: { canonical: 'https://lisani.tech/apprendre' },
   robots: { index: true, follow: true },
 }
 
@@ -31,12 +31,12 @@ const FAQ = [
   {
     question: 'À partir de quel âge peut-on commencer ?',
     answer:
-      "NourAl est conçu pour les enfants dès 4 ans. Les exercices s'adaptent progressivement : les tout-petits commencent par reconnaître les formes des lettres, puis apprennent leurs noms et leurs sons. Vers 6-7 ans, l'enfant peut commencer à associer les lettres pour former des syllabes et des mots simples.",
+      "Lisani est conçu pour les enfants dès 4 ans. Les exercices s'adaptent progressivement : les tout-petits commencent par reconnaître les formes des lettres, puis apprennent leurs noms et leurs sons. Vers 6-7 ans, l'enfant peut commencer à associer les lettres pour former des syllabes et des mots simples.",
   },
   {
     question: "Faut-il connaître l'arabe pour accompagner son enfant ?",
     answer:
-      "Non, aucune connaissance préalable n'est nécessaire. NourAl est pensé pour les familles francophones : toutes les explications sont en français, les sons sont prononcés par des locuteurs natifs, et le tableau de bord parent vous permet de suivre les progrès sans avoir à maîtriser l'arabe vous-même.",
+      "Non, aucune connaissance préalable n'est nécessaire. Lisani est pensé pour les familles francophones : toutes les explications sont en français, les sons sont prononcés par des locuteurs natifs, et le tableau de bord parent vous permet de suivre les progrès sans avoir à maîtriser l'arabe vous-même.",
   },
   {
     question: "Comment fonctionne l'abonnement ?",
@@ -46,7 +46,7 @@ const FAQ = [
   {
     question: 'Mes données et celles de mes enfants sont-elles sécurisées ?',
     answer:
-      "Oui. NourAl est conforme au RGPD et aux exigences CNIL pour les données de mineurs. Les données de vos enfants ne sont jamais partagées ni vendues à des tiers. L'accès à chaque profil enfant est strictement limité au compte parent auquel il est rattaché. Consultez notre politique de confidentialité pour plus de détails.",
+      "Oui. Lisani est conforme au RGPD et aux exigences CNIL pour les données de mineurs. Les données de vos enfants ne sont jamais partagées ni vendues à des tiers. L'accès à chaque profil enfant est strictement limité au compte parent auquel il est rattaché. Consultez notre politique de confidentialité pour plus de détails.",
   },
   {
     question: "Puis-je résilier à tout moment ?",
@@ -63,13 +63,13 @@ const breadcrumbSchema = {
       '@type': 'ListItem',
       position: 1,
       name: 'Accueil',
-      item: 'https://nouralapp.fr',
+      item: 'https://lisani.tech',
     },
     {
       '@type': 'ListItem',
       position: 2,
       name: "Apprendre l'Alphabet Arabe",
-      item: 'https://nouralapp.fr/apprendre',
+      item: 'https://lisani.tech/apprendre',
     },
   ],
 }
@@ -171,19 +171,19 @@ export default function ApprendrePage() {
               </p>
               <p>
                 <strong>Commencez par l&apos;alphabet.</strong> Avant de former des mots ou de lire
-                le Coran, l&apos;enfant doit reconnaître et prononcer les 28 lettres. NourAl
+                le Coran, l&apos;enfant doit reconnaître et prononcer les 28 lettres. Lisani
                 propose un ordre pédagogique par groupes de lettres similaires (ex. : ب ت ث, qui
                 partagent la même forme de base), ce qui accélère l&apos;apprentissage.
               </p>
               <p>
                 <strong>Rendez les sessions ludiques.</strong> Les enfants de 4 à 7 ans apprennent
                 par le jeu : associer une lettre à un emoji, répéter un son, colorier une forme.
-                NourAl intègre des animations, des sons et des récompenses pour maintenir la
+                Lisani intègre des animations, des sons et des récompenses pour maintenir la
                 motivation.
               </p>
               <p>
                 <strong>Valorisez chaque progrès.</strong> Un enfant qui reconnaît sa première
-                lettre mérite une félicitation sincère. Le tableau de bord parent de NourAl vous
+                lettre mérite une félicitation sincère. Le tableau de bord parent de Lisani vous
                 montre précisément les lettres maîtrisées, en cours d&apos;apprentissage ou pas
                 encore abordées — pour que vous puissiez encourager au bon moment.
               </p>

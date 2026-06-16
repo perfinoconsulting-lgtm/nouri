@@ -94,14 +94,14 @@ export default function DashboardShell({ prenom, children }: Props) {
       <aside className="hidden md:flex w-[280px] bg-[#1A3A5C] flex-col shrink-0 sticky top-0 h-screen z-30">
         {/* Logo */}
         <div className="px-6 py-5 border-b border-white/10">
-          <span className="text-[#F5A623] text-2xl font-bold tracking-tight">🌙 NourAl</span>
+          <span className="text-[#F5A623] text-2xl font-bold tracking-tight">🌙 Lisani</span>
         </div>
         {sidebarContent}
       </aside>
 
       {/* ── HEADER MOBILE ──────────────────────────────────────── */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-[#1A3A5C] flex items-center justify-between px-4 z-40 shadow-lg">
-        <span className="text-[#F5A623] text-xl font-bold">🌙 NourAl</span>
+        <span className="text-[#F5A623] text-xl font-bold">🌙 Lisani</span>
         <button
           onClick={() => setDrawerOpen(true)}
           aria-label="Ouvrir le menu"
@@ -123,7 +123,7 @@ export default function DashboardShell({ prenom, children }: Props) {
           {/* Panel */}
           <div className="md:hidden fixed top-0 left-0 h-full w-[280px] bg-[#1A3A5C] z-50 flex flex-col shadow-2xl">
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-              <span className="text-[#F5A623] text-xl font-bold">🌙 NourAl</span>
+              <span className="text-[#F5A623] text-xl font-bold">🌙 Lisani</span>
               <button
                 onClick={() => setDrawerOpen(false)}
                 aria-label="Fermer le menu"

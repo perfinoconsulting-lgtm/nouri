@@ -48,7 +48,7 @@ export default function ParrainagePage() {
   // Message WhatsApp avec le prénom du premier enfant si disponible
   const prenom = data?.firstChildPrenom ?? 'mon enfant'
   const messageWA = data
-    ? `Salam ! J'utilise NourAl pour que ${prenom} apprenne l'arabe.\nC'est super bien et seulement 2€/mois.\nAvec mon code ${data.code} tu as le 1er mois gratuit ! nouralapp.fr`
+    ? `Salam ! J'utilise Lisani pour que ${prenom} apprenne l'arabe.\nC'est super bien et seulement 2€/mois.\nAvec mon code ${data.code} tu as le 1er mois gratuit ! lisani.tech`
     : ''
 
   async function copierCode() {
@@ -90,7 +90,7 @@ export default function ParrainagePage() {
       <div>
         <h1 className="text-3xl font-bold text-[#1A3A5C]">Parrainage 🎁</h1>
         <p className="text-gray-500 mt-2 text-sm leading-relaxed">
-          Partagez NourAl à vos proches et gagnez{' '}
+          Partagez Lisani à vos proches et gagnez{' '}
           <span className="font-semibold text-[#27AE60]">1 mois gratuit</span>{' '}
           pour chaque famille qui s&apos;inscrit avec votre code.
         </p>

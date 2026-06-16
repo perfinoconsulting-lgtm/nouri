@@ -1,5 +1,5 @@
 /**
- * lib/data/syllabes.ts — Données des 112 syllabes arabes pour NourAl
+ * lib/data/syllabes.ts — Données des 112 syllabes arabes pour Lisani
  *
  * 28 lettres × 4 voyelles (fatha, kasra, damma, sukun).
  * Sons décrits en référence au français pour des enfants de 4-8 ans.

@@ -127,7 +127,7 @@ function triggerConfetti(): void {
 
 async function syncPendingAnswers(childId: string): Promise<void> {
   if (typeof window === 'undefined') return
-  const key = `noural_pending_${childId}`
+  const key = `lisani_pending_${childId}`
   try {
     const stored = localStorage.getItem(key)
     if (!stored) return
@@ -160,7 +160,7 @@ function submitAnswer(answer: PendingAnswer): void {
     body: JSON.stringify(answer),
   }).catch(() => {
     try {
-      const key = `noural_pending_${answer.childId}`
+      const key = `lisani_pending_${answer.childId}`
       const stored = localStorage.getItem(key)
       const pending: PendingAnswer[] = stored ? (JSON.parse(stored) as PendingAnswer[]) : []
       pending.push(answer)

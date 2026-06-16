@@ -11,7 +11,7 @@ npm install resend @react-email/components
 ## Variables requises
 ```
 RESEND_API_KEY=re_...
-NEXT_PUBLIC_APP_URL=https://nouralapp.fr
+NEXT_PUBLIC_APP_URL=https://https://maghribdelice.com
 ```
 
 ## Service d'envoi (fire-and-forget)
@@ -23,7 +23,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 async function sendEmailSafe(payload: EmailPayload) {
   try {
     const result = await resend.emails.send({
-      from: 'NourAl <noreply@nouralapp.fr>',
+      from: 'NourAl <noreply@https://maghribdelice.com>',
       to: payload.to,
       subject: payload.subject,
       react: payload.react,

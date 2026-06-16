@@ -1,5 +1,5 @@
 /**
- * lib/data/mots.ts — Vocabulaire arabe thématique pour NourAl
+ * lib/data/mots.ts — Vocabulaire arabe thématique pour Lisani
  *
  * 6 thèmes × 8-10 mots. Tous les textes arabes incluent les harakat
  * pour un apprentissage correct dès le début.

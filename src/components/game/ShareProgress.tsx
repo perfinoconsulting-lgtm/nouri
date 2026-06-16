@@ -17,8 +17,8 @@ export default function ShareProgress({ child }: ShareProgressProps) {
 
   const messageWA =
     `${child.prenom} vient d'apprendre ses ${lettersCount} premières lettres arabes 🌙\n` +
-    `Avec l'app NourAl — à partir de 4 ans, seulement 2€/mois !\n` +
-    `nouralapp.fr`
+    `Avec l'app Lisani — à partir de 4 ans, seulement 2€/mois !\n` +
+    `lisani.tech`
 
   // Dessine le canvas — appelé au montage et avant l'export
   const renderCanvas = useCallback(() => {
@@ -59,12 +59,12 @@ export default function ShareProgress({ child }: ShareProgressProps) {
     // Sous-titre blanc
     ctx.fillStyle = '#FFFFFF'
     ctx.font = '11px system-ui, sans-serif'
-    ctx.fillText('sur NourAl ! 🌙⭐', 150, 144)
+    ctx.fillText('sur Lisani ! 🌙⭐', 150, 144)
 
     // URL discrète en bas
     ctx.fillStyle = 'rgba(255, 255, 255, 0.45)'
     ctx.font = '10px system-ui, sans-serif'
-    ctx.fillText('nouralapp.fr', 150, 185)
+    ctx.fillText('lisani.tech', 150, 185)
   }, [child.prenom, lettersCount, avatar])
 
   // Rendu au montage et à chaque changement d'enfant
@@ -96,12 +96,12 @@ export default function ShareProgress({ child }: ShareProgressProps) {
 
       // Partage natif (mobile)
       if (blob && typeof navigator.share === 'function' && typeof navigator.canShare === 'function') {
-        const file = new File([blob], `${child.prenom}-progres-nouri.png`, { type: 'image/png' })
+        const file = new File([blob], `${child.prenom}-progres-lisani.png`, { type: 'image/png' })
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
             text: messageWA,
-            title: `Progrès de ${child.prenom} sur NourAl`,
+            title: `Progrès de ${child.prenom} sur Lisani`,
           })
           return
         }
@@ -112,7 +112,7 @@ export default function ShareProgress({ child }: ShareProgressProps) {
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `${child.prenom}-progres-nouri.png`
+        a.download = `${child.prenom}-progres-lisani.png`
         document.body.appendChild(a)
         a.click()
         document.body.removeChild(a)

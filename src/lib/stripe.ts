@@ -34,7 +34,7 @@ export async function createOrGetCustomer(
 
   const customer = await stripe.customers.create({
     email,
-    name: prenom ?? 'Parent NourAl',
+    name: prenom ?? 'Parent Lisani',
     metadata: { parentId },
   })
 

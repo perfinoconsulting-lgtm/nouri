@@ -141,11 +141,11 @@ function SyllabesGameInner() {
     if (failed.length > 0) {
       pendingRef.current = [...failed, ...pendingRef.current]
       localStorage.setItem(
-        `nouri_offline_syllabes_${childId}`,
+        `lisani_offline_syllabes_${childId}`,
         JSON.stringify(pendingRef.current),
       )
     } else {
-      localStorage.removeItem(`nouri_offline_syllabes_${childId}`)
+      localStorage.removeItem(`lisani_offline_syllabes_${childId}`)
     }
   }, [childId])
 
@@ -176,7 +176,7 @@ function SyllabesGameInner() {
     if (!childId) return
 
     // Récupérer les réponses hors-ligne stockées
-    const stored = localStorage.getItem(`nouri_offline_syllabes_${childId}`)
+    const stored = localStorage.getItem(`lisani_offline_syllabes_${childId}`)
     if (stored) {
       try {
         pendingRef.current = JSON.parse(stored) as PendingAnswer[]
@@ -243,7 +243,7 @@ function SyllabesGameInner() {
           })
         }
         localStorage.setItem(
-          `nouri_offline_syllabes_${childId}`,
+          `lisani_offline_syllabes_${childId}`,
           JSON.stringify(pendingRef.current),
         )
         await syncAnswers()

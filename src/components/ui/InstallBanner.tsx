@@ -42,10 +42,10 @@ export function InstallBanner() {
     if (declinedAt && Date.now() < parseInt(declinedAt, 10)) return
 
     // Incrémenter et lire le compteur de sessions
-    const rawCount = localStorage.getItem('nouri_session_count')
+    const rawCount = localStorage.getItem('lisani_session_count')
     const sessionCount = rawCount ? parseInt(rawCount, 10) : 0
     const newCount = sessionCount + 1
-    localStorage.setItem('nouri_session_count', String(newCount))
+    localStorage.setItem('lisani_session_count', String(newCount))
 
     if (ios) {
       // iOS : pas d'événement beforeinstallprompt, afficher les instructions manuelles
@@ -88,7 +88,7 @@ export function InstallBanner() {
   return (
     <div
       role="banner"
-      aria-label="Installer l'application NourAl"
+      aria-label="Installer l'application Lisani"
       className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between gap-3 px-4 py-3"
       style={{
         backgroundColor: '#1A3A5C',
@@ -98,7 +98,7 @@ export function InstallBanner() {
       {/* Texte principal */}
       <div className="flex flex-col min-w-0">
         <span className="text-white font-bold text-sm leading-tight truncate">
-          📱 Installe NourAl sur ton téléphone !
+          📱 Installe Lisani sur ton téléphone !
         </span>
         {isIOSDevice ? (
           <span className="text-white/70 text-xs mt-0.5 leading-tight">

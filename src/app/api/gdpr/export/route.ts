@@ -56,7 +56,7 @@ export async function GET() {
     const exportPayload = {
       export_date: new Date().toISOString(),
       export_version: '1.0',
-      source: 'NourAl',
+      source: 'Lisani',
       notice: 'Ces données vous appartiennent. Elles sont exportées conformément au RGPD (Art. 20 — droit à la portabilité).',
       compte: parentResult.data ?? null,
       enfants: children,
@@ -71,7 +71,7 @@ export async function GET() {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Content-Disposition': 'attachment; filename="noural-mes-donnees.json"',
+        'Content-Disposition': 'attachment; filename="Lisani-mes-donnees.json"',
         'Cache-Control': 'no-store',
       },
     })

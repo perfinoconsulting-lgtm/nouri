@@ -1,4 +1,4 @@
-// Types du dashboard parental NourAl
+// Types du dashboard parental Lisani
 
 export interface ChildStats {
   lettersLearned: number       // lettres avec score >= 80

@@ -23,7 +23,7 @@ const NEVER_CACHE = [
 ];
 
 // Stockage IndexedDB pour la sync queue offline
-const DB_NAME = 'noural-sync';
+const DB_NAME = 'Lisani-sync';
 const DB_STORE = 'progress-queue';
 
 function ouvrirDB() {

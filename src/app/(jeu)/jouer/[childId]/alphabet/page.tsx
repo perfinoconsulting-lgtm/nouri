@@ -141,9 +141,9 @@ export default function AlphabetGame() {
     // Si des envois ont échoué, on les replace dans la file d'attente et dans localStorage
     if (failed.length > 0) {
       pendingRef.current = [...failed, ...pendingRef.current]
-      localStorage.setItem(`nouri_offline_progress_${childId}`, JSON.stringify(pendingRef.current))
+      localStorage.setItem(`lisani_offline_progress_${childId}`, JSON.stringify(pendingRef.current))
     } else {
-      localStorage.removeItem(`nouri_offline_progress_${childId}`)
+      localStorage.removeItem(`lisani_offline_progress_${childId}`)
     }
   }, [childId])
 
@@ -234,7 +234,7 @@ export default function AlphabetGame() {
     }
 
     pendingRef.current.push(responseItem)
-    localStorage.setItem(`nouri_offline_progress_${childId}`, JSON.stringify(pendingRef.current))
+    localStorage.setItem(`lisani_offline_progress_${childId}`, JSON.stringify(pendingRef.current))
   }
 
   // --- Cycles de vie ---
@@ -244,7 +244,7 @@ export default function AlphabetGame() {
 
     const init = async () => {
       // 1. Charger et synchroniser les réponses hors-ligne stockées au préalable
-      const stored = localStorage.getItem(`nouri_offline_progress_${childId}`)
+      const stored = localStorage.getItem(`lisani_offline_progress_${childId}`)
       if (stored) {
         try {
           pendingRef.current = JSON.parse(stored)

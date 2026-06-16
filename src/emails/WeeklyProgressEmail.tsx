@@ -188,7 +188,7 @@ function StatBadge({ label, value, emoji }: { label: string; value: number; emoj
 }
 
 export function WeeklyProgressEmail({ parentPrenom, children }: WeeklyProgressEmailProps) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://nouralapp.fr'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://lisani.tech'
 
   const activeChildren = children.filter((c) => c.isActive)
   const totalLetters = activeChildren.reduce((sum, c) => sum + c.lettersSeenThisWeek, 0)
@@ -209,7 +209,7 @@ export function WeeklyProgressEmail({ parentPrenom, children }: WeeklyProgressEm
           margin: '0 0 8px',
         }}
       >
-        {hasActive ? '⭐ Résumé de la semaine' : '🌙 Des nouvelles de NourAl'}
+        {hasActive ? '⭐ Résumé de la semaine' : '🌙 Des nouvelles de Lisani'}
       </Heading>
 
       <Text style={{ color: colors.textMuted, fontSize: '14px', margin: '0 0 24px' }}>

@@ -19,7 +19,7 @@ export function SubscriptionCancelledEmail({
   child,
   endDate,
 }: SubscriptionCancelledEmailProps) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://nouralapp.fr'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://lisani.tech'
   const formattedDate = endDate.toLocaleDateString('fr-FR', {
     day: 'numeric',
     month: 'long',

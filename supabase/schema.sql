@@ -13,7 +13,8 @@ CREATE TABLE parents (
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz,
   stripe_customer_id text UNIQUE,
-  onboarding_completed boolean DEFAULT false
+  onboarding_completed boolean DEFAULT false,
+  referral_code text UNIQUE
 );
 
 ---------------------------------------------
@@ -47,7 +48,20 @@ CREATE TABLE subscriptions (
 );
 
 ---------------------------------------------
--- 4. Table CONTENT_MODULES
+-- 4. Table REFERRALS
+---------------------------------------------
+CREATE TABLE referrals (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  referrer_id uuid REFERENCES parents(id) ON DELETE CASCADE,
+  referred_id uuid REFERENCES parents(id) ON DELETE CASCADE UNIQUE,
+  code text NOT NULL,
+  status text DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'canceled')),
+  reward_applied_at timestamptz,
+  created_at timestamptz DEFAULT now()
+);
+
+---------------------------------------------
+-- 5. Table CONTENT_MODULES
 ---------------------------------------------
 CREATE TABLE content_modules (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -62,7 +76,7 @@ CREATE TABLE content_modules (
 );
 
 ---------------------------------------------
--- 5. Table CONTENT_ITEMS
+-- 6. Table CONTENT_ITEMS
 ---------------------------------------------
 CREATE TABLE content_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -132,6 +146,9 @@ FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 CREATE INDEX idx_children_parent_id ON children(parent_id);
 CREATE INDEX idx_subscriptions_parent_id ON subscriptions(parent_id);
 CREATE INDEX idx_subscriptions_child_id ON subscriptions(child_id);
+CREATE INDEX idx_parents_referral_code ON parents(referral_code);
+CREATE INDEX idx_referrals_referrer_id ON referrals(referrer_id);
+CREATE INDEX idx_referrals_referred_id ON referrals(referred_id);
 CREATE INDEX idx_content_items_module_id ON content_items(module_id);
 CREATE INDEX idx_progress_child_id ON progress(child_id);
 CREATE INDEX idx_progress_item_id ON progress(item_id);
@@ -145,6 +162,7 @@ CREATE INDEX idx_sessions_child_id ON sessions(child_id);
 ALTER TABLE parents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE children ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE referrals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE content_modules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE content_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE progress ENABLE ROW LEVEL SECURITY;
@@ -155,8 +173,18 @@ ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
 -- PARENTS: Un parent ne peut voir et modifier que son propre profil
 CREATE POLICY "Les parents peuvent voir leur profil" 
 ON parents FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Les parents peuvent créer leur profil"
+ON parents FOR INSERT WITH CHECK (auth.uid() = id);
 CREATE POLICY "Les parents peuvent modifier leur profil" 
 ON parents FOR UPDATE USING (auth.uid() = id);
+
+-- REFERRALS: Un parent voit les parrainages qui le concernent
+CREATE POLICY "Voir ses parrainages"
+ON referrals FOR SELECT USING (auth.uid() = referrer_id OR auth.uid() = referred_id);
+CREATE POLICY "Créer son parrainage"
+ON referrals FOR INSERT WITH CHECK (auth.uid() = referred_id);
+CREATE POLICY "Modifier ses parrainages"
+ON referrals FOR UPDATE USING (auth.uid() = referrer_id OR auth.uid() = referred_id);
 
 -- CHILDREN: Un parent gère ses propres enfants
 CREATE POLICY "Voir ses enfants" 

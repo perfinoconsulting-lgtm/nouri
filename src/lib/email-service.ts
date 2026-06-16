@@ -25,7 +25,7 @@ interface EmailPayload {
 async function sendEmailSafe(payload: EmailPayload): Promise<void> {
   try {
     const result = await resend.emails.send({
-      from: 'NourAl <noreply@nouralapp.fr>',
+      from: 'Lisani <noreply@lisani.tech>',
       to: payload.to,
       subject: payload.subject,
       react: payload.react,
@@ -41,7 +41,7 @@ async function sendEmailSafe(payload: EmailPayload): Promise<void> {
 export function sendWelcomeEmail(parent: { email: string; prenom: string }): void {
   void sendEmailSafe({
     to: parent.email,
-    subject: 'Bienvenue sur NourAl 🌙',
+    subject: 'Bienvenue sur Lisani 🌙',
     react: React.createElement(WelcomeEmail, { prenom: parent.prenom }),
     type: 'welcome',
   })
@@ -165,7 +165,7 @@ export function sendMilestoneEmail(
 export function sendPasswordResetEmail(email: string, resetUrl: string): void {
   void sendEmailSafe({
     to: email,
-    subject: 'Réinitialisation mot de passe — NourAl',
+    subject: 'Réinitialisation mot de passe — Lisani',
     react: React.createElement(PasswordResetEmail, { resetUrl }),
     type: 'password_reset',
   })

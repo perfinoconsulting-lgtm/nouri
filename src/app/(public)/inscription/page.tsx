@@ -84,7 +84,7 @@ export default function RegisterPage() {
       
       <div className="bg-white p-8 sm:p-10 rounded-[2rem] shadow-2xl max-w-lg w-full relative z-10 border border-white/20">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-2">NourAl<span className="text-accent">.</span></h1>
+          <h1 className="text-4xl font-bold text-primary mb-2">Lisani<span className="text-accent">.</span></h1>
           <p className="text-gray-500">Créez votre compte parent gratuit</p>
         </div>
 
@@ -133,7 +133,7 @@ export default function RegisterPage() {
 
             <label className="flex items-start gap-3">
               <input type="checkbox" {...register('newsletter')} className="mt-1 w-5 h-5 rounded border-gray-300 text-accent focus:ring-accent" />
-              <span className="text-sm text-gray-600">Je souhaite recevoir des astuces d'apprentissage et les nouveautés NourAl.</span>
+              <span className="text-sm text-gray-600">Je souhaite recevoir des astuces d'apprentissage et les nouveautés Lisani.</span>
             </label>
           </div>
 

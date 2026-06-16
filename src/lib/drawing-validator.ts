@@ -1,5 +1,5 @@
 /**
- * lib/drawing-validator.ts — Validateur de dessin pour NourAl
+ * lib/drawing-validator.ts — Validateur de dessin pour Lisani
  *
  * Ce module contient les fonctions de validation du tracé sur le canvas de dessin :
  * 1. measureInkCoverage : calcul de la couverture d'encre (pixels dessinés)

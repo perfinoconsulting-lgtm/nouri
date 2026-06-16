@@ -15,7 +15,7 @@ interface PasswordResetEmailProps {
 export function PasswordResetEmail({ resetUrl }: PasswordResetEmailProps) {
   return (
     <EmailLayout
-      previewText="Réinitialisez votre mot de passe NourAl. Ce lien expire dans 1 heure."
+      previewText="Réinitialisez votre mot de passe Lisani. Ce lien expire dans 1 heure."
     >
       <Heading
         style={{
@@ -29,7 +29,7 @@ export function PasswordResetEmail({ resetUrl }: PasswordResetEmailProps) {
       </Heading>
 
       <Text style={{ color: colors.text, fontSize: '16px', lineHeight: '1.6', margin: '0 0 16px' }}>
-        Vous avez demandé la réinitialisation de votre mot de passe NourAl.
+        Vous avez demandé la réinitialisation de votre mot de passe Lisani.
         Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe.
       </Text>
 

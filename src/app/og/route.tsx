@@ -57,7 +57,7 @@ export function GET() {
               lineHeight: 1.1,
             }}
           >
-            🌙 NourAl
+            🌙 Lisani
           </div>
 
           <div

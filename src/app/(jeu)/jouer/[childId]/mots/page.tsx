@@ -135,11 +135,11 @@ function MotsGameInner() {
     if (failed.length > 0) {
       pendingRef.current = [...failed, ...pendingRef.current]
       localStorage.setItem(
-        `nouri_offline_mots_${childId}`,
+        `lisani_offline_mots_${childId}`,
         JSON.stringify(pendingRef.current),
       )
     } else {
-      localStorage.removeItem(`nouri_offline_mots_${childId}`)
+      localStorage.removeItem(`lisani_offline_mots_${childId}`)
     }
   }, [childId])
 
@@ -169,7 +169,7 @@ function MotsGameInner() {
   useEffect(() => {
     if (!childId) return
 
-    const stored = localStorage.getItem(`nouri_offline_mots_${childId}`)
+    const stored = localStorage.getItem(`lisani_offline_mots_${childId}`)
     if (stored) {
       try { pendingRef.current = JSON.parse(stored) as PendingAnswer[] } catch { /* ignore */ }
     }
@@ -254,7 +254,7 @@ function MotsGameInner() {
       gameType: 'qcm',
     })
     localStorage.setItem(
-      `nouri_offline_mots_${childId}`,
+      `lisani_offline_mots_${childId}`,
       JSON.stringify(pendingRef.current),
     )
 

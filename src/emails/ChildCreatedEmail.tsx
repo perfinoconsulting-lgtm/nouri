@@ -24,7 +24,7 @@ interface ChildCreatedEmailProps {
 }
 
 export function ChildCreatedEmail({ parentPrenom, child }: ChildCreatedEmailProps) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://nouralapp.fr'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://lisani.tech'
   const avatarEmoji = AVATAR_EMOJIS[child.avatar] ?? '⭐'
 
   return (

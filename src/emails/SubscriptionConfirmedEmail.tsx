@@ -38,7 +38,7 @@ export function SubscriptionConfirmedEmail({
   amount,
   renewalDate,
 }: SubscriptionConfirmedEmailProps) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://nouralapp.fr'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://lisani.tech'
   const formattedDate = renewalDate.toLocaleDateString('fr-FR', {
     day: 'numeric',
     month: 'long',
@@ -50,7 +50,7 @@ export function SubscriptionConfirmedEmail({
   })
 
   return (
-    /* Objet : "Abonnement activé ! [Prénom] a accès à tout NourAl 🎉" */
+    /* Objet : "Abonnement activé ! [Prénom] a accès à tout Lisani 🎉" */
     <EmailLayout
       previewText={`Tout est débloqué pour ${child.prenom}. Découvrez par où commencer !`}
     >
@@ -67,7 +67,7 @@ export function SubscriptionConfirmedEmail({
 
       <Text style={{ color: colors.text, fontSize: '16px', lineHeight: '1.6', margin: '0 0 24px' }}>
         Bonjour {parentPrenom}, l&apos;abonnement de <strong>{child.prenom}</strong> est
-        maintenant actif. Tout NourAl lui est ouvert ! ✨
+        maintenant actif. Tout Lisani lui est ouvert ! ✨
       </Text>
 
       {/* Récapitulatif abonnement */}

@@ -17,7 +17,7 @@ interface PaymentFailedEmailProps {
 }
 
 export function PaymentFailedEmail({ parentPrenom, child, daysRemaining }: PaymentFailedEmailProps) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://nouralapp.fr'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://lisani.tech'
 
   /* Libellé durée restante */
   const accessLabel =
@@ -136,10 +136,10 @@ export function PaymentFailedEmail({ parentPrenom, child, daysRemaining }: Payme
       >
         Des questions ? Contactez notre support :{' '}
         <Link
-          href="mailto:support@nouralapp.fr"
+          href="mailto:support@lisani.tech"
           style={{ color: colors.accent, textDecoration: 'underline' }}
         >
-          support@nouralapp.fr
+          support@lisani.tech
         </Link>
         {' '}— nous répondons sous 24h.
       </Text>

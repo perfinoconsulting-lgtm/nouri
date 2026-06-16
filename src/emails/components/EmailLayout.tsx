@@ -26,7 +26,7 @@ interface EmailLayoutProps {
 }
 
 export function EmailLayout({ previewText, children }: EmailLayoutProps) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://nouralapp.fr'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://lisani.tech'
 
   return (
     <Html lang="fr">
@@ -60,7 +60,7 @@ export function EmailLayout({ previewText, children }: EmailLayoutProps) {
                 letterSpacing: '1px',
               }}
             >
-              🌙 NourAl
+              🌙 Lisani
             </Text>
             <Text
               style={{
@@ -92,7 +92,7 @@ export function EmailLayout({ previewText, children }: EmailLayoutProps) {
                 margin: '0 0 8px',
               }}
             >
-              © {new Date().getFullYear()} NourAl — Application d&apos;apprentissage de l&apos;arabe
+              © {new Date().getFullYear()} Lisani — Application d&apos;apprentissage de l&apos;arabe
             </Text>
             <Text
               style={{

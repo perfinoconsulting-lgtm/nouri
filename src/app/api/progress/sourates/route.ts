@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { getSourateBySlug } from '@/lib/data/sourates'
+import { getPremiumAccessError, getPremiumChildAccess } from '@/lib/premium-access'
 import { z } from 'zod'
 
 // Schéma de validation
@@ -76,6 +77,12 @@ export async function POST(req: Request) {
 
     if (childError || !child) {
       return NextResponse.json({ error: 'Enfant introuvable ou accès refusé.' }, { status: 403 })
+    }
+
+    const premiumAccess = await getPremiumChildAccess(childId)
+    if (!premiumAccess.allowed) {
+      const accessError = getPremiumAccessError(premiumAccess.reason)
+      return NextResponse.json({ error: accessError.error }, { status: accessError.status })
     }
 
     // 4. Validation contre les données statiques — jamais de texte coranique inconnu

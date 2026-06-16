@@ -26,19 +26,19 @@ const MILESTONE_CONFIG: Record<
     emoji: '⭐',
     title: 'a appris 5 lettres arabes !',
     description: 'Le voyage commence ! Les 5 premières lettres arabes sont maîtrisées.',
-    whatsappMessage: 'Ma fille/mon fils vient d\'apprendre ses 5 premières lettres arabes grâce à NourAl ! 🌙⭐',
+    whatsappMessage: 'Ma fille/mon fils vient d\'apprendre ses 5 premières lettres arabes grâce à Lisani ! 🌙⭐',
   },
   '10_letters': {
     emoji: '🌟',
     title: 'connaît 10 lettres arabes !',
     description: "À mi-chemin de l'alphabet ! Une belle progression semaine après semaine.",
-    whatsappMessage: 'Ma fille/mon fils connaît maintenant 10 lettres arabes ! 🌙🌟 #NourAl',
+    whatsappMessage: 'Ma fille/mon fils connaît maintenant 10 lettres arabes ! 🌙🌟 #Lisani',
   },
   '20_letters': {
     emoji: '🏆',
     title: 'maîtrise 20 lettres arabes !',
     description: "Presque tout l'alphabet ! Encore 8 lettres et c'est terminé. Quelle progression !",
-    whatsappMessage: 'Ma fille/mon fils maîtrise 20 lettres arabes sur 28 ! 🏆 #NourAl',
+    whatsappMessage: 'Ma fille/mon fils maîtrise 20 lettres arabes sur 28 ! 🏆 #Lisani',
   },
   '28_letters': {
     emoji: '🎓',
@@ -46,21 +46,21 @@ const MILESTONE_CONFIG: Record<
     description:
       "L'alphabet complet est maîtrisé — toutes les 28 lettres ! Une étape immense franchie.",
     whatsappMessage:
-      'Ma fille/mon fils connaît TOUT l\'alphabet arabe ! 🎓🌙 بِسْمِ اللَّهِ — grâce à NourAl !',
+      'Ma fille/mon fils connaît TOUT l\'alphabet arabe ! 🎓🌙 بِسْمِ اللَّهِ — grâce à Lisani !',
   },
   first_sourate: {
     emoji: '📖',
     title: 'a lu sa première sourate !',
     description: 'Al-Fatiha récitée ! Un moment béni pour toute la famille. ما شاء الله',
     whatsappMessage:
-      'Ma fille/mon fils a lu Al-Fatiha pour la première fois ! 📖🌙 ما شاء الله #NourAl',
+      'Ma fille/mon fils a lu Al-Fatiha pour la première fois ! 📖🌙 ما شاء الله #Lisani',
   },
   streak_7: {
     emoji: '🔥',
     title: 'apprend depuis 7 jours de suite !',
     description: '7 jours consécutifs d\'apprentissage. La régularité fait la maîtrise — bravo !',
     whatsappMessage:
-      'Ma fille/mon fils apprend l\'arabe chaque jour depuis 7 jours de suite ! 🔥🌙 #NourAl',
+      'Ma fille/mon fils apprend l\'arabe chaque jour depuis 7 jours de suite ! 🔥🌙 #Lisani',
   },
   level_up: {
     emoji: '🚀',
@@ -68,7 +68,7 @@ const MILESTONE_CONFIG: Record<
     description:
       'Un nouveau niveau atteint. Les exercices s\'adaptent maintenant à sa progression.',
     whatsappMessage:
-      'Ma fille/mon fils vient de changer de niveau sur NourAl ! 🚀🌙 Fier(e) de lui/elle !',
+      'Ma fille/mon fils vient de changer de niveau sur Lisani ! 🚀🌙 Fier(e) de lui/elle !',
   },
 }
 
@@ -85,7 +85,7 @@ interface MilestoneEmailProps {
 }
 
 export function MilestoneEmail({ parentPrenom, child, milestone }: MilestoneEmailProps) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://nouralapp.fr'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://lisani.tech'
   const config = MILESTONE_CONFIG[milestone]
 
   /* Message WhatsApp encodé URL */

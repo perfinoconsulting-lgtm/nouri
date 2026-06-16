@@ -1,34 +1,35 @@
 import type { Metadata } from 'next'
 import { SchemaOrg } from '@/components/seo/SchemaOrg'
-import LandingPageClient, { FAQ_ITEMS } from './LandingPageClient'
+import { FAQ_ITEMS } from './faq-data'
+import LandingPageClient from './LandingPageClient'
 
 export const metadata: Metadata = {
-  title: "NourAl — Apprendre l'Arabe pour Enfants | Familles Musulmanes France",
+  title: "Lisani — Apprendre l'Arabe pour Enfants | Familles Musulmanes France",
   description: "✨ Alphabet arabe, mots et Al-Fatiha pour vos enfants. Ludique, suivi parental, 2€/mois. Essai gratuit 7 jours.",
   keywords: ["apprendre arabe enfant", "alphabet arabe enfant france", "application arabe enfant", "cours arabe maison"],
   openGraph: {
-    title: "NourAl — Apprendre l'Arabe en s'Amusant 🌙",
+    title: "Lisani — Apprendre l'Arabe en s'Amusant 🌙",
     description: "Application ludique pour enfants musulmans de France. À partir de 4 ans.",
-    url: "https://nouralapp.fr",
-    siteName: "NourAl",
-    images: [{ url: "/og", width: 1200, height: 630, alt: "NourAl — Apprendre l'arabe" }],
+    url: "https://lisani.tech",
+    siteName: "Lisani",
+    images: [{ url: "/og", width: 1200, height: 630, alt: "Lisani — Apprendre l'arabe" }],
     locale: "fr_FR",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "NourAl — Apprendre l'Arabe pour Enfants",
+    title: "Lisani — Apprendre l'Arabe pour Enfants",
     description: "Application ludique, suivi parental, 2€/mois.",
     images: ["/og"],
   },
   robots: { index: true, follow: true },
-  alternates: { canonical: "https://nouralapp.fr" },
+  alternates: { canonical: "https://lisani.tech" },
 }
 
 const softwareSchema = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "NourAl",
+  "name": "Lisani",
   "applicationCategory": "EducationApplication",
   "operatingSystem": "Web, iOS, Android",
   "inLanguage": "fr",

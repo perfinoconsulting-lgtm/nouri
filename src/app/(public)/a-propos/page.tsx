@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: "À propos — NourAl",
-  description: "Découvrez l'histoire et les valeurs de NourAl, l'application d'arabe pour enfants musulmans de France.",
+  title: "À propos — Lisani",
+  description: "Découvrez l'histoire et les valeurs de Lisani, l'application d'arabe pour enfants musulmans de France.",
 }
 
 const ETAPES = [
@@ -28,12 +28,12 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
 
-      {/* Section 1 — Pourquoi NourAl ? */}
+      {/* Section 1 — Pourquoi Lisani ? */}
       <section className="bg-[#1A3A5C] text-white py-20 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-[#F5A623] font-bold uppercase tracking-widest text-sm mb-4">Notre histoire</p>
           <h1 className="text-4xl sm:text-5xl font-bold mb-8 leading-tight">
-            Pourquoi NourAl ?
+            Pourquoi Lisani ?
           </h1>
           <div className="space-y-5 text-white/80 text-lg leading-relaxed text-left">
             <p>
@@ -42,13 +42,13 @@ export default function AboutPage() {
               de nos familles.
             </p>
             <p>
-              NourAl est né de cette frustration. Une application pensée dès le départ pour les enfants de
+              Lisani est né de cette frustration. Une application pensée dès le départ pour les enfants de
               4 à 12 ans, en français, avec des contenus adaptés à notre contexte : l'alphabet, les mots du
               quotidien, et les sourates que nos enfants récitent déjà à la mosquée.
             </p>
             <p>
-              Le nom <strong className="text-[#F5A623]">NourAl</strong> vient de <em>Nour</em> (نور — lumière en arabe)
-              et <em>Al</em> pour l'article arabe. Apporter la lumière de la langue, simplement.
+              Le nom <strong className="text-[#F5A623]">Lisani</strong> (لساني) signifie <em>ma langue</em> en arabe.
+              Donner à nos enfants un lien vivant avec la langue arabe, simplement.
             </p>
           </div>
         </div>
@@ -101,7 +101,7 @@ export default function AboutPage() {
               <div>
                 <h3 className="font-bold text-[#1A3A5C] text-lg mb-1">Vos données restent vos données</h3>
                 <p className="text-gray-500 leading-relaxed">
-                  NourAl respecte le RGPD. Aucune donnée de votre enfant n'est revendue ni partagée.
+                  Lisani respecte le RGPD. Aucune donnée de votre enfant n'est revendue ni partagée.
                   Suppression complète du compte sur simple demande.
                 </p>
               </div>

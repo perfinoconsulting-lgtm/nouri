@@ -1,4 +1,4 @@
-# NourAl — Contexte Claude Code
+﻿# Nouri — Contexte Claude Code
 
 ## Application
 Apprentissage arabe enfants 4-12 ans, familles musulmanes de France.

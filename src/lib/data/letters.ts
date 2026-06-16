@@ -1,5 +1,5 @@
 /**
- * lib/data/letters.ts — Données des 28 lettres arabes pour NourAl
+ * lib/data/letters.ts — Données des 28 lettres arabes pour Lisani
  *
  * Ordre pédagogique par similarité de forme (8 groupes).
  * Tous les textes arabes incluent les harakat (voyelles courtes) pour l'apprentissage.

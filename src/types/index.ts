@@ -1,4 +1,4 @@
-// Types pour le projet NourAl
+// Types pour le projet Lisani
 
 export interface User {
   id: string

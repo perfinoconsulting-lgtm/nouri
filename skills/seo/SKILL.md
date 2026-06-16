@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "NourAl — Apprendre l'Arabe en s'Amusant 🌙",
     description: "Application d'apprentissage de l'arabe pour les enfants musulmans de France. À partir de 4 ans.",
-    url: "https://nouralapp.fr",
+    url: "https://https://maghribdelice.com",
     siteName: "NourAl",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     locale: "fr_FR",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
   },
   robots: { index: true, follow: true },
-  alternates: { canonical: "https://nouralapp.fr" },
+  alternates: { canonical: "https://https://maghribdelice.com" },
 }
 ```
 
@@ -74,10 +74,10 @@ const faqSchema = {
 ```typescript
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
-    { url: 'https://nouralapp.fr', lastModified: new Date(), priority: 1.0, changeFrequency: 'daily' },
-    { url: 'https://nouralapp.fr/apprendre', lastModified: new Date(), priority: 0.9, changeFrequency: 'weekly' },
-    { url: 'https://nouralapp.fr/tarifs', lastModified: new Date(), priority: 0.8, changeFrequency: 'monthly' },
-    { url: 'https://nouralapp.fr/a-propos', lastModified: new Date(), priority: 0.6, changeFrequency: 'monthly' },
+    { url: 'https://https://maghribdelice.com', lastModified: new Date(), priority: 1.0, changeFrequency: 'daily' },
+    { url: 'https://https://maghribdelice.com/apprendre', lastModified: new Date(), priority: 0.9, changeFrequency: 'weekly' },
+    { url: 'https://https://maghribdelice.com/tarifs', lastModified: new Date(), priority: 0.8, changeFrequency: 'monthly' },
+    { url: 'https://https://maghribdelice.com/a-propos', lastModified: new Date(), priority: 0.6, changeFrequency: 'monthly' },
   ]
 }
 ```
@@ -104,7 +104,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       { userAgent: '*', allow: '/', disallow: ['/dashboard/', '/jouer/', '/api/', '/admin/'] }
     ],
-    sitemap: 'https://nouralapp.fr/sitemap.xml',
+    sitemap: 'https://https://maghribdelice.com/sitemap.xml',
   }
 }
 ```

@@ -152,7 +152,7 @@ export default function ParametresPage() {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = 'noural-mes-donnees.json'
+      a.download = 'Lisani-mes-donnees.json'
       a.click()
       URL.revokeObjectURL(url)
     } catch {
@@ -320,7 +320,7 @@ export default function ParametresPage() {
       <section className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
         <h2 className="text-xl font-bold text-[#1A3A5C]">Mes données (RGPD)</h2>
         <p className="text-sm text-gray-600">
-          Conformément au RGPD, vous pouvez télécharger l&apos;ensemble de vos données NourAl
+          Conformément au RGPD, vous pouvez télécharger l&apos;ensemble de vos données Lisani
           (profil, enfants, progressions, sessions).
         </p>
         <button
@@ -332,7 +332,7 @@ export default function ParametresPage() {
           <span>{exporting ? 'Préparation…' : 'Exporter mes données'}</span>
         </button>
         <p className="text-xs text-gray-400">
-          Reçois un fichier JSON avec toutes tes données NourAl.
+          Reçois un fichier JSON avec toutes tes données Lisani.
         </p>
       </section>
 

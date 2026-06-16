@@ -84,7 +84,7 @@ npx web-push generate-vapid-keys
 # Copier dans .env.local :
 # NEXT_PUBLIC_VAPID_PUBLIC_KEY=
 # VAPID_PRIVATE_KEY=
-# VAPID_EMAIL=mailto:contact@nouralapp.fr
+# VAPID_EMAIL=mailto:contact@https://maghribdelice.com
 ```
 
 ## Install prompt

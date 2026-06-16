@@ -191,7 +191,7 @@ export default async function DashboardPage() {
               🌙
             </div>
             <div>
-              <h3 className="font-bold text-lg">Bienvenue sur NourAl !</h3>
+              <h3 className="font-bold text-lg">Bienvenue sur Lisani !</h3>
               <p className="text-blue-200 text-sm mt-0.5">
                 Créez le profil de votre premier enfant pour commencer l&apos;aventure.
               </p>
@@ -250,7 +250,7 @@ export default async function DashboardPage() {
             Vous n&apos;avez pas encore créé de profil enfant
           </h2>
           <p className="text-gray-500 max-w-sm mb-8">
-            Commencez l&apos;aventure NourAl en créant le premier profil. Cela prend moins d&apos;une minute !
+            Commencez l&apos;aventure Lisani en créant le premier profil. Cela prend moins d&apos;une minute !
           </p>
           <Link
             href="/enfants"

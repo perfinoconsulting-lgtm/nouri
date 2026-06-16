@@ -4,6 +4,12 @@ import { z } from 'zod'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { stripe } from '@/lib/stripe'
 
+interface ReferralEntry {
+  id: string
+  created_at: string
+  status: string
+}
+
 // Génère un code de 6 chars depuis le SHA-256 du parentId + sel optionnel
 function generateCode(seed: string): string {
   return createHash('sha256')
@@ -25,39 +31,50 @@ export async function GET() {
 
     const parentId = session.user.id
 
-    const { data: parent, error: parentError } = await supabase
+    const parentResult = await supabase
       .from('parents')
-      .select('referral_code, prenom')
+      .select('id, email, prenom')
       .eq('id', parentId)
-      .single()
+      .maybeSingle()
+    let parent = parentResult.data
+    const parentError = parentResult.error
 
     if (parentError) {
       return NextResponse.json({ error: 'Profil parent introuvable.' }, { status: 404 })
     }
 
-    let code = (parent?.referral_code as string | null) ?? null
+    if (!parent) {
+      const metadata = session.user.user_metadata as { prenom?: unknown; full_name?: unknown }
+      const prenom =
+        typeof metadata.prenom === 'string'
+          ? metadata.prenom
+          : typeof metadata.full_name === 'string'
+            ? metadata.full_name
+            : null
 
-    // Générer et persister le code si absent
-    if (!code) {
-      code = generateCode(parentId)
+      const { data: createdParent, error: createParentError } = await supabase
+        .from('parents')
+        .insert({
+          id: parentId,
+          email: session.user.email ?? '',
+          prenom,
+        })
+        .select('id, email, prenom')
+        .single()
 
-      // Résoudre les collisions (improbable avec 16^6 possibilités)
-      for (let attempt = 0; attempt < 5; attempt++) {
-        const { data: collision } = await supabase
-          .from('parents')
-          .select('id')
-          .eq('referral_code', code)
-          .maybeSingle()
-
-        if (!collision) break
-        code = generateCode(parentId + String(attempt))
+      if (createParentError || !createdParent) {
+        return NextResponse.json({ error: 'Profil parent introuvable.' }, { status: 404 })
       }
 
-      await supabase
-        .from('parents')
-        .update({ referral_code: code })
-        .eq('id', parentId)
+      parent = createdParent
     }
+
+    const code = generateCode(parentId)
+
+    await supabase
+      .from('parents')
+      .update({ referral_code: code })
+      .eq('id', parentId)
 
     // Statistiques de parrainage
     const { data: referrals, error: referralsError } = await supabase
@@ -66,14 +83,15 @@ export async function GET() {
       .eq('referrer_id', parentId)
       .order('created_at', { ascending: false })
 
-    if (referralsError) {
+    const referralsList = referralsError ? [] : ((referrals ?? []) as ReferralEntry[])
+
+    if (referralsError && referralsError.code !== '42P01' && referralsError.code !== 'PGRST205') {
       return NextResponse.json(
         { error: 'Erreur lors de la récupération des parrainages.' },
         { status: 500 }
       )
     }
 
-    const referralsList = referrals ?? []
     const monthsEarned = referralsList.filter((r) => r.status === 'completed').length
 
     // Prénom du premier enfant pour le message WhatsApp
@@ -192,7 +210,7 @@ export async function POST(req: Request) {
         await stripe.customers.createBalanceTransaction(referrerCustomerId, {
           amount: -200,
           currency: 'eur',
-          description: '1 mois gratuit parrainage NourAl',
+          description: '1 mois gratuit parrainage Lisani',
         })
 
         // Marquer le parrainage comme complété
