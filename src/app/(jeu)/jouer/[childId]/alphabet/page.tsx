@@ -16,6 +16,7 @@ import { AlphabetGrid } from '@/components/game/AlphabetGrid'
 import { LetterDetail } from '@/components/game/LetterDetail'
 import { RewardSystem } from '@/components/game/RewardSystem'
 import { LETTERS } from '@/lib/data/letters'
+import { reportLiveActivity } from '@/lib/live-activity'
 
 // Skeleton affiché pendant le chargement du QCM
 function SkeletonQCM() {
@@ -107,6 +108,24 @@ export default function AlphabetGame() {
   useEffect(() => {
     sessionStatsRef.current = { correct: sessionStats.correct, wrong: sessionStats.wrong }
   }, [sessionStats])
+
+  useEffect(() => {
+    const letter = selectedLetter === null ? null : LETTERS[selectedLetter]
+    const learned = Array.from(progress.values()).filter((score) => score >= 80).length
+    const labels = {
+      grid: 'Choisit une lettre',
+      detail: letter ? `Découvre la lettre ${letter.nom}` : "Explore l'alphabet",
+      quiz: letter ? `Répond au quiz de la lettre ${letter.nom}` : "Fait un quiz d'alphabet",
+      writing: letter ? `S'entraîne à écrire la lettre ${letter.nom}` : "S'entraîne à écrire",
+    }
+
+    reportLiveActivity({
+      label: labels[currentView],
+      arabicText: letter?.formes.isol ?? null,
+      viewName: currentView,
+      progressPercent: Math.round((learned / 28) * 100),
+    })
+  }, [currentView, progress, selectedLetter])
 
   // --- Fonctions de synchronisation et APIs ---
 

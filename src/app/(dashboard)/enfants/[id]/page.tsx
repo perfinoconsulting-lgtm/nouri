@@ -8,7 +8,9 @@ import Link from 'next/link'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import ProgressGrid from '@/components/dashboard/ProgressGrid'
 import ChildDetailActions from '@/components/dashboard/ChildDetailActions'
+import LiveChildrenActivity from '@/components/dashboard/LiveChildrenActivity'
 import type { ChildWithStats, ChildStats, SubscriptionInfo, SessionData } from '@/types/dashboard'
+import type { ChildLiveActivity } from '@/types/live-activity'
 import { ArrowLeft, Flame, Star, BookOpen, Clock } from 'lucide-react'
 
 function calculateStreak(startedAts: string[]): number {
@@ -59,6 +61,27 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
+interface ProgressContentItem {
+  id: string
+  type: string
+  contenu_ar: string
+}
+
+interface ProgressRow {
+  item_id: string
+  score: number
+  last_seen: string | null
+  content_items: ProgressContentItem | ProgressContentItem[] | null
+}
+
+function getProgressContentItem(row: ProgressRow): ProgressContentItem | null {
+  if (Array.isArray(row.content_items)) {
+    return row.content_items[0] ?? null
+  }
+
+  return row.content_items
+}
+
 export default async function ChildDetailPage({ params }: PageProps) {
   const { id } = await params
   const supabase = await createServerSupabaseClient()
@@ -75,10 +98,19 @@ export default async function ChildDetailPage({ params }: PageProps) {
 
   if (!childRaw) notFound()
 
-  const [progressResult, sessionsResult, subResult] = await Promise.all([
+  const [progressResult, sessionsResult, subResult, activityResult] = await Promise.all([
     supabase
       .from('progress')
-      .select('item_id, score, updated_at')
+      .select(`
+        item_id,
+        score,
+        last_seen,
+        content_items (
+          id,
+          type,
+          contenu_ar
+        )
+      `)
       .eq('child_id', id),
     supabase
       .from('sessions')
@@ -91,20 +123,31 @@ export default async function ChildDetailPage({ params }: PageProps) {
       .select('status, current_period_end, cancel_at_period_end')
       .eq('child_id', id)
       .single(),
+    supabase
+      .from('child_live_activity')
+      .select(
+        'child_id, parent_id, module_slug, activity_label, activity_ar, view_name, is_active, progress_percent, updated_at'
+      )
+      .eq('child_id', id)
+      .maybeSingle(),
   ])
 
-  const allProgress = progressResult.data ?? []
+  const allProgress = ((progressResult.data ?? []) as unknown as ProgressRow[])
+  const letterProgress = allProgress.filter((p) => getProgressContentItem(p)?.type === 'lettre')
   const allSessions = sessionsResult.data ?? []
   const subData = subResult.data
+  const liveActivity = activityResult.data
+    ? ([activityResult.data] as ChildLiveActivity[])
+    : []
 
-  const lettersLearned = allProgress.filter((p) => (p.score as number) >= 80).length
-  const lettersInProgress = allProgress.filter(
-    (p) => (p.score as number) > 0 && (p.score as number) < 80
+  const lettersLearned = letterProgress.filter((p) => p.score >= 80).length
+  const lettersInProgress = letterProgress.filter(
+    (p) => p.score > 0 && p.score < 80
   ).length
   const avgScore =
     allProgress.length > 0
       ? Math.round(
-          allProgress.reduce((s, p) => s + (p.score as number), 0) / allProgress.length
+          allProgress.reduce((s, p) => s + p.score, 0) / allProgress.length
         )
       : 0
   const totalSeconds = allSessions.reduce(
@@ -152,11 +195,16 @@ export default async function ChildDetailPage({ params }: PageProps) {
     correct_answers: 0,
   }))
 
-  const progressData = allProgress.map((p) => ({
-    item_id: p.item_id as string,
-    score: p.score as number,
-    updated_at: (p.updated_at as string | undefined) ?? undefined,
-  }))
+  const progressData = letterProgress.map((p) => {
+    const item = getProgressContentItem(p)
+
+    return {
+      item_id: p.item_id,
+      contenu_ar: item?.contenu_ar ?? '',
+      score: p.score,
+      last_seen: p.last_seen ?? undefined,
+    }
+  })
 
   const levelColors: Record<number, string> = {
     1: '#94a3b8',
@@ -245,6 +293,18 @@ export default async function ChildDetailPage({ params }: PageProps) {
       </div>
 
       {/* ── Grille des lettres ── */}
+      <LiveChildrenActivity
+        childProfiles={[
+          {
+            id: child.id,
+            prenom: child.prenom,
+            avatar: child.avatar,
+          },
+        ]}
+        initialActivity={liveActivity}
+        focusChildId={child.id}
+      />
+
       <ProgressGrid progressData={progressData} />
 
       {/* ── Sessions récentes ── */}

@@ -4,6 +4,7 @@ import { Baloo_2 } from 'next/font/google'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import EtoilesAnimees from '@/components/jeu/EtoilesAnimees'
 import BoutonParents from '@/components/jeu/BoutonParents'
+import LiveActivityTracker from '@/components/jeu/LiveActivityTracker'
 
 const baloo2 = Baloo_2({
   subsets: ['latin'],
@@ -51,6 +52,7 @@ export default async function JeuLayout({ children }: { children: React.ReactNod
       style={{ background: 'radial-gradient(ellipse at top, #0d2137 0%, #1A3A5C 70%)' }}
     >
       <EtoilesAnimees />
+      <LiveActivityTracker childId={childId} />
 
       {/* Header 56px — h-14 */}
       <header className="relative z-10 h-14 flex items-center justify-between px-4 border-b border-white/10">

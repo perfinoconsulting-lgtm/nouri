@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 const API_CACHE = `api-${CACHE_VERSION}`;
@@ -136,11 +136,16 @@ self.addEventListener('fetch', (event) => {
   if (!url.protocol.startsWith('http')) return;
   if (jamaisCacher(url)) return;
 
+  // Les bundles Next.js doivent toujours correspondre au HTML courant.
+  if (url.pathname.startsWith('/_next/')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   // Assets statiques et données alphabet → Cache First (30j)
   if (
     url.pathname.match(/\.(svg|png|jpg|jpeg|webp|woff2?|ttf|ico)$/) ||
-    url.pathname.startsWith('/lib/data') ||
-    url.pathname.startsWith('/_next/static')
+    url.pathname.startsWith('/lib/data')
   ) {
     event.respondWith(strategieCacheFirst(event.request, STATIC_CACHE, TTL_30_JOURS));
     return;
@@ -165,7 +170,7 @@ self.addEventListener('fetch', (event) => {
     event.request.mode === 'navigate' &&
     ['/', '/tarifs', '/a-propos'].includes(url.pathname)
   ) {
-    event.respondWith(strategieStaleWhileRevalidate(event.request, DYNAMIC_CACHE));
+    event.respondWith(strategieNavigationNetworkFirst(event.request, DYNAMIC_CACHE));
     return;
   }
 
@@ -216,17 +221,16 @@ async function strategieNetworkFirst(requete, nomCache, ttl) {
   }
 }
 
-// Stale While Revalidate : sert depuis le cache et met à jour en arrière-plan
-async function strategieStaleWhileRevalidate(requete, nomCache) {
+// Network First pour les pages publiques, avec repli hors ligne
+async function strategieNavigationNetworkFirst(requete, nomCache) {
   const cache = await caches.open(nomCache);
-  const cached = await cache.match(requete);
-
-  const promesseReseau = fetch(requete).then(async (reponse) => {
+  try {
+    const reponse = await fetch(requete);
     if (reponse.ok) await cacherAvecDate(cache, requete, reponse);
     return reponse;
-  });
-
-  return cached || promesseReseau;
+  } catch {
+    return (await cache.match(requete)) || caches.match('/offline.html');
+  }
 }
 
 // POST offline : stocker dans IndexedDB et retourner une réponse optimiste

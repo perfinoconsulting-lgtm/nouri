@@ -7,8 +7,10 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 import ChildCard from '@/components/dashboard/ChildCard'
 import StatsCard from '@/components/dashboard/StatsCard'
 import AddChildButton from '@/components/dashboard/AddChildButton'
+import LiveChildrenActivity from '@/components/dashboard/LiveChildrenActivity'
 import Link from 'next/link'
 import type { ChildWithStats, ChildStats, SubscriptionInfo } from '@/types/dashboard'
+import type { ChildLiveActivity } from '@/types/live-activity'
 
 function formatDateFr(): string {
   return new Date().toLocaleDateString('fr-FR', {
@@ -71,7 +73,7 @@ export default async function DashboardPage() {
   const childIds = childrenList.map((c) => c.id as string)
 
   // Toutes les données agrégées en parallèle
-  const [progressResult, sessionsResult, subsResult, weeklyResult] =
+  const [progressResult, sessionsResult, subsResult, weeklyResult, activityResult] =
     childIds.length > 0
       ? await Promise.all([
           supabase.from('progress').select('child_id, score').in('child_id', childIds),
@@ -89,13 +91,20 @@ export default async function DashboardPage() {
             .select('child_id, duration_seconds')
             .in('child_id', childIds)
             .gte('started_at', new Date(Date.now() - 7 * 864e5).toISOString()),
+          supabase
+            .from('child_live_activity')
+            .select(
+              'child_id, parent_id, module_slug, activity_label, activity_ar, view_name, is_active, progress_percent, updated_at'
+            )
+            .in('child_id', childIds),
         ])
-      : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }]
+      : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }, { data: [] }]
 
   const allProgress = progressResult.data ?? []
   const allSessions = sessionsResult.data ?? []
   const allSubs = subsResult.data ?? []
   const weeklySessions = weeklyResult.data ?? []
+  const liveActivity = (activityResult.data ?? []) as ChildLiveActivity[]
 
   // Stats globales pour la barre du haut
   const totalLettersMastered = allProgress.filter((p) => (p.score as number) >= 80).length
@@ -204,6 +213,17 @@ export default async function DashboardPage() {
             Créer un profil enfant →
           </Link>
         </div>
+      )}
+
+      {childrenList.length > 0 && (
+        <LiveChildrenActivity
+          childProfiles={childrenList.map((child) => ({
+            id: child.id as string,
+            prenom: child.prenom as string,
+            avatar: (child.avatar as string) ?? '🌙',
+          }))}
+          initialActivity={liveActivity}
+        />
       )}
 
       {/* Stats globales */}

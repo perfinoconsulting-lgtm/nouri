@@ -38,6 +38,29 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap"
           as="style"
         />
+        {process.env.NODE_ENV !== 'production' && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    registrations.forEach(function(registration) {
+                      registration.unregister();
+                    });
+                  });
+                }
+
+                if ('caches' in window) {
+                  caches.keys().then(function(keys) {
+                    keys.forEach(function(key) {
+                      caches.delete(key);
+                    });
+                  });
+                }
+              `,
+            }}
+          />
+        )}
       </head>
       <body className="min-h-screen antialiased bg-white text-primary">
         {children}
@@ -46,10 +69,9 @@ export default function RootLayout({
             __html: `
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js')
-                    .catch(function(err) {
-                      console.error('SW registration failed:', err);
-                    });
+                  if (${JSON.stringify(process.env.NODE_ENV)} === 'production') {
+                    navigator.serviceWorker.register('/sw.js').catch(function() {});
+                  }
                 });
               }
             `,

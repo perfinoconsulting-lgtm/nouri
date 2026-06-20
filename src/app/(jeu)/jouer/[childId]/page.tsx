@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import type { ChildWithStats, SessionData } from '@/types/dashboard'
 
 interface ReviewStats {
@@ -26,8 +26,21 @@ const NOM_MODULES: Record<string, string> = {
 
 export default function JoueurPage() {
   const params = useParams<{ childId: string }>()
+  const router = useRouter()
   const [data, setData] = useState<PageData | null>(null)
   const [chargement, setChargement] = useState(true)
+  const [moduleVerrouille, setModuleVerrouille] = useState<string | null>(null)
+  const [premiumDemande, setPremiumDemande] = useState(false)
+
+  useEffect(() => {
+    const premiumRequired =
+      new URLSearchParams(window.location.search).get('premium') === 'required'
+
+    if (premiumRequired) {
+      setPremiumDemande(true)
+      setModuleVerrouille('Ce module')
+    }
+  }, [])
 
   useEffect(() => {
     async function chargerDonnees() {
@@ -74,9 +87,13 @@ export default function JoueurPage() {
 
   const { child, recentSessions, reviewStats } = data
   const premium =
-    child.subscription.status === 'active' ||
-    child.subscription.status === 'trialing'
+    (child.subscription.status === 'active' ||
+      child.subscription.status === 'trialing') &&
+    (!child.subscription.currentPeriodEnd ||
+      new Date(child.subscription.currentPeriodEnd).getTime() > Date.now())
   const dernierModule = recentSessions[0]?.module_slug ?? null
+  const dernierModuleAccessible =
+    dernierModule === 'alphabet' || dernierModule === 'reviser' || premium
 
   return (
     <div className="px-4 py-6 max-w-lg mx-auto">
@@ -135,6 +152,7 @@ export default function JoueurPage() {
           gradient="from-[#6B3F8A] to-[#9B59B6]"
           delai={100}
           accessible={premium}
+          onLocked={() => setModuleVerrouille('Les Syllabes')}
         />
         <CarteModule
           href={`/jouer/${params.childId}/mots`}
@@ -144,6 +162,7 @@ export default function JoueurPage() {
           gradient="from-[#2E7D32] to-[#27AE60]"
           delai={200}
           accessible={premium}
+          onLocked={() => setModuleVerrouille('Les Mots')}
         />
         <CarteModule
           href={`/jouer/${params.childId}/sourates`}
@@ -153,11 +172,12 @@ export default function JoueurPage() {
           gradient="from-[#B5600A] to-[#E67E22]"
           delai={300}
           accessible={premium}
+          onLocked={() => setModuleVerrouille('Les Sourates')}
         />
       </div>
 
       {/* Bouton Continuer — visible si une session précédente existe */}
-      {dernierModule && NOM_MODULES[dernierModule] && (
+      {dernierModule && NOM_MODULES[dernierModule] && dernierModuleAccessible && (
         <Link
           href={`/jouer/${params.childId}/${dernierModule}`}
           className="block w-full text-center bg-[#F5A623] text-white font-bold py-4 rounded-2xl text-lg transition-opacity active:opacity-80"
@@ -165,6 +185,50 @@ export default function JoueurPage() {
         >
           ▶️ Continuer — {NOM_MODULES[dernierModule]}
         </Link>
+      )}
+
+      {moduleVerrouille && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#07182A]/80 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="premium-dialog-title"
+        >
+          <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-[#1A3A5C] p-6 text-center text-white shadow-2xl">
+            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-[#F5A623]/15 text-5xl">
+              🔒
+            </div>
+            <h2 id="premium-dialog-title" className="text-2xl font-extrabold">
+              {moduleVerrouille} est verrouillé
+            </h2>
+            <p className="mt-3 text-base leading-relaxed text-white/75">
+              Demande à papa ou maman d&apos;activer Lisani Premium pour jouer à ce module.
+            </p>
+
+            <div className="mt-6 grid gap-3">
+              <button
+                type="button"
+                onClick={() => router.push('/abonnement')}
+                className="min-h-[56px] rounded-2xl bg-[#F5A623] px-5 py-3 text-lg font-extrabold text-[#1A3A5C] active:scale-95"
+              >
+                Appeler un parent
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setModuleVerrouille(null)
+                  if (premiumDemande) {
+                    setPremiumDemande(false)
+                    router.replace(`/jouer/${params.childId}`)
+                  }
+                }}
+                className="min-h-[52px] rounded-2xl bg-white/10 px-5 py-3 font-bold text-white active:scale-95"
+              >
+                Continuer avec l&apos;alphabet
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
@@ -182,6 +246,7 @@ interface CarteModuleProps {
   gradient: string
   delai: number
   accessible: boolean
+  onLocked?: () => void
 }
 
 function CarteModule({
@@ -194,6 +259,7 @@ function CarteModule({
   gradient,
   delai,
   accessible,
+  onLocked,
 }: CarteModuleProps) {
   const contenu = (
     <div
@@ -243,7 +309,17 @@ function CarteModule({
   )
 
   if (!accessible) {
-    return <div className="cursor-default">{contenu}</div>
+    return (
+      <button
+        type="button"
+        onClick={onLocked}
+        className="block w-full text-left active:scale-[0.98]"
+        style={{ touchAction: 'manipulation' }}
+        aria-label={`${titre}, module Premium verrouillé`}
+      >
+        {contenu}
+      </button>
+    )
   }
 
   return (
